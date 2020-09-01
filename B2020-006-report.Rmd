@@ -1,5 +1,5 @@
 ---
-title: "Project B2020-006 Report"
+title: "Project B2020-006 Report - updated with only commands"
 author: "Thomas Bleazard and Francesco Lescai"
 date: "09/05/2020"
 output:
@@ -14,7 +14,7 @@ editor_options:
 ---
 
 ```{r, echo=FALSE, message=FALSE, error=FALSE, warning=FALSE}
-setwd("X:/CODE/projectscode/B2020-006")
+setwd("X:/CODE/nanoprofiler")
 library(knitr)
 library(ggplot2)
 library(tidyr)
@@ -26,32 +26,21 @@ library(ggtree)
 opts_chunk$set(message=FALSE, error=FALSE, warning=FALSE, tidy=TRUE, tidy.opts=list(blank=FALSE), cache=TRUE, cache.lazy = FALSE, echo = FALSE,  results = 'asis', fig.pos='H', fig.wide=TRUE)
 ```
 
-## NGS Sequencing Project 317
-
 ## Introduction
 
-We are using sequencing data from immunised alpaca PBMC extracted RNA, with nanobody cDNAs amplified. This first pilot analysis explores the diversity of the repertoire using 5 unenriched samples before subsequent analyses will look at phage display rounds.
-
-This NGS project was sequenced (re-run) at NIBSC on the Illumina MiSeq sequencer on 13/03/20. The sequencing data files, logs, processing and analysis files are stored on the HPC at:
-
-/usr/share/sequencing/projects/317
-
-We aim to generate the total number of different CDR3s that exist in the library, and the relative abundance of each. We then perform a basic phylogenetic analysis to show which B cell lineages were affinity matured. For our initial analysis we follow some of the steps used by Deschaght et al (2017).
+We aim to generate the total number of different nanobody CDR3s that exist in a library, and the relative abundance of each. We then perform a basic phylogenetic analysis to show which B cell lineages were affinity matured. For our initial analysis we follow some of the steps used by Deschaght et al (2017).
 
 ## Data QC
 
-We performed standard QC of our sequencing data, and also trimmed the reads to remove adapter read-through sequence and low-quality bases from read ends.
+We perform standard QC of our sequencing data, and also trim the reads to remove adapter read-through sequence and low-quality bases from read ends.
 
 ```{bash, eval=FALSE}
 nextflow run /home/AD/tbleazar/CODE/core/workflows/QC/initial-QC.nf --indir /usr/share/sequencing/projects/317/raw_data --qcdir /usr/share/sequencing/projects/317/qc
 nextflow run /home/AD/tbleazar/CODE/core/utilities/trimonly.nf -c /home/AD/tbleazar/CODE/core/workflows/nextflow.config -w /home/AD/tbleazar/nextwork --reads /usr/share/sequencing/projects/317/raw_data --trimoutdir /usr/share/sequencing/projects/317/alignments
+cp /usr/share/sequencing/projects/317/alignments/trimming-summary.csv ~CODE/nanoprofiler
 ```
 
-The summary of QC statistics are available on the HPC reports page for this project B2020-006 at:
-
-http://hpc.nibsc.ac.uk/wiki/new_wiki/#!reports.md
-
-We trimmed data using the tool CutAdapt and obtained the following numbers of trimmed reads.
+We view the statistics for trimming here, and also check the output from MultiQC.
 
 ```{R trimstats}
 trimtable <- read.csv("trimming-summary.csv")
@@ -67,11 +56,10 @@ ggplot(data=trimtable, aes(x=Sample.Name, y=ReadPairs, fill=Total)) +
   labs(fill = "Trimming survival") 
 ```
 
-We note that the QC analysis and the trimming both indicate poor sequencing of this library, however we proceed with further analysis.
 
 ## Analysis Pipeline
 
-To obtain CDR3 sequences, we merge forward and reverse reads to obtain a single sequence for each read pair. We run this merging process with the tool FLASH v1.2.11.
+To obtain CDR3 sequences, we merge forward and reverse reads to obtain a single sequence for each read pair. We run this merging process with the tool FLASH v1.2.11. We have put the binary for FLASH in this repository for convenience.
 
 ```{bash , eval=FALSE}
 cd /usr/share/sequencing/projects/317/alignments/
@@ -79,7 +67,7 @@ for filename in `ls *_L001_R1_001.trimmed.fastq.gz`
 do
 shortname=`echo $filename | sed 's/_L001_R1_001.trimmed.fastq.gz//g'`
 echo $shortname
-/home/AD/tbleazar/flash/flash --quiet -o $shortname -d /usr/share/sequencing/projects/317/alignments --max-overlap 300 ${shortname}_L001_R1_001.trimmed.fastq.gz ${shortname}_L001_R2_001.trimmed.fastq.gz
+./flash --quiet -o $shortname -d /usr/share/sequencing/projects/317/alignments --max-overlap 300 ${shortname}_L001_R1_001.trimmed.fastq.gz ${shortname}_L001_R2_001.trimmed.fastq.gz
 done
 ```
 
