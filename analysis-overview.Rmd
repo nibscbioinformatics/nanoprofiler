@@ -71,10 +71,9 @@ echo $shortname
 done
 ```
 
-Note that the max overlap parameter was tuned based on expected fragment size and read lengths.
+Note that the max overlap parameter must be tuned based on expected fragment size and read lengths.
 
-We generated merged reads for the 5 samples, with the following distributions in merged sequence length. We note that sample 4 was an outlier in some QC metrics, and also carries a number of short-length merged reads.
-
+We plot the distribution of merged read lengths.
 
 ```{r viewlengthdist}
 for (samplename in c("317-D1-Bst3_S1","317-D1-Bst4_S2","317-L1-Bst2_S3","317-L1-Bst3_S4","317-L1-Bst4_S5")) {
@@ -84,7 +83,6 @@ for (samplename in c("317-D1-Bst3_S1","317-D1-Bst4_S2","317-L1-Bst2_S3","317-L1-
     geom_histogram(aes(x=sequence_length, y=count), stat="identity") +
     ggtitle(paste0("Distribution of merged sequence lengths for sample ",samplename)))
 }
-
 ```
 
 Because of the way that CD-HIT outputs its cluster results, we first wrote a Python script to process the input FASTQ data to change the read headers to short IDs.
@@ -106,9 +104,7 @@ python translate.py /usr/share/sequencing/projects/317/alignments/317-D1-Bst3_S1
 #Likewise running for the other samples
 ```
 
-This process filtered out a proportion of the reads, leaving 79% remaining.
-
-We proceeded to attempt clustering of these merged sequences using the tool CD-HIT v4.8.1. We followed the derived cluster threshold of 0.9 used by Deschaght et al (2017).
+We proceed to perform clustering of these merged sequences using the tool CD-HIT v4.8.1. We follow as standard the derived cluster threshold of 0.9 used by Deschaght et al (2017).
 
 ```{bash, eval=FALSE}
 cd /usr/share/sequencing/projects/317/alignments/
@@ -121,14 +117,11 @@ sbatch /home/AD/tbleazar/CODE/projectscode/B2020-006/docdhit.sh $filename
 done
 ```
 
-We used a Python script to collect the cluster information and summarise the counts of each, using the representative read as the cluster name. 
+We use a Python script to collect the cluster information and summarise the counts of each, using the representative read as the cluster name. 
 
 ```{bash, eval=FALSE}
 python /home/AD/tbleazar/CODE/projectscode/B2020-006/readcdout.py /usr/share/sequencing/projects/317/alignments/317-D1-Bst3_S1.aa.clusters.clstr /usr/share/sequencing/projects/317/analysis/317-D1-Bst3_S1.aa.clusters.summary
-python /home/AD/tbleazar/CODE/projectscode/B2020-006/readcdout.py /usr/share/sequencing/projects/317/alignments/317-D1-Bst4_S2.aa.clusters.clstr /usr/share/sequencing/projects/317/analysis/317-D1-Bst4_S2.aa.clusters.summary
-python /home/AD/tbleazar/CODE/projectscode/B2020-006/readcdout.py /usr/share/sequencing/projects/317/alignments/317-L1-Bst2_S3.aa.clusters.clstr /usr/share/sequencing/projects/317/analysis/317-L1-Bst2_S3.aa.clusters.summary
-python /home/AD/tbleazar/CODE/projectscode/B2020-006/readcdout.py /usr/share/sequencing/projects/317/alignments/317-L1-Bst3_S4.aa.clusters.clstr /usr/share/sequencing/projects/317/analysis/317-L1-Bst3_S4.aa.clusters.summary
-python /home/AD/tbleazar/CODE/projectscode/B2020-006/readcdout.py /usr/share/sequencing/projects/317/alignments/317-L1-Bst4_S5.aa.clusters.clstr /usr/share/sequencing/projects/317/analysis/317-L1-Bst4_S5.aa.clusters.summary
+#And same for each sample
 ```
 
 We review the distribution of members of clusters and their sequence identity to the representative.
@@ -152,7 +145,7 @@ for (samplename in c("317-D1-Bst3_S1","317-D1-Bst4_S2","317-L1-Bst2_S3","317-L1-
 }
 ```
 
-We note that the library is dominated by clusters with very few members. However, there are a moderate number of clusters with larger numbers of members. We make the files listing cluster representatives and sizes, as well as the sequences of those clusters, available on the HPC reports page. The total counts of clusters, and the numbers reaching a threshold of 5, 100 and 1000 members are listed below.
+We summarise cluster counts based on the number of member sequences.
 
 ```{R}
 clusterbig$five <- clusterbig$Count >=5
@@ -166,19 +159,16 @@ kable(clustercounts) %>%
   kable_styling()
 ```
 
-We wrote a Python script to collect the CDR3 sequences only from the full amino acid sequence, using the context of the CDR3 which begins with amino acids which commence after a YYC and terminates with the amino acids which precede a WGQ. We also computed the length distribution of these CDR3 sequences.
+We use a Python script to collect the CDR3 sequences only from the full amino acid sequence, using the context of the CDR3 which begins with amino acids which commence after a YYC and terminates with the amino acids which precede a WGQ. We also compute the length distribution of these CDR3 sequences.
+
+Note that this approach is not robust to amino acid sequences which do not follow this pattern, or contain the motifs in other positions.
 
 ```{bash, eval=FALSE}
 module load anaconda/Py2/python2
 conda activate Rtbleazar
 python /home/AD/tbleazar/CODE/projectscode/B2020-006/getCDR3.py 317-D1-Bst3_S1.aa.clusters 317-D1-Bst3_S1.cdr3.fasta > 317-D1-Bst3_S1.cdr3.hist
-python /home/AD/tbleazar/CODE/projectscode/B2020-006/getCDR3.py 317-D1-Bst4_S2.aa.clusters 317-D1-Bst4_S2.cdr3.fasta > 317-D1-Bst4_S2.cdr3.hist
-python /home/AD/tbleazar/CODE/projectscode/B2020-006/getCDR3.py 317-L1-Bst2_S3.aa.clusters 317-L1-Bst2_S3.cdr3.fasta > 317-L1-Bst2_S3.cdr3.hist
-python /home/AD/tbleazar/CODE/projectscode/B2020-006/getCDR3.py 317-L1-Bst3_S4.aa.clusters 317-L1-Bst3_S4.cdr3.fasta > 317-L1-Bst3_S4.cdr3.hist
-python /home/AD/tbleazar/CODE/projectscode/B2020-006/getCDR3.py 317-L1-Bst4_S5.aa.clusters 317-L1-Bst4_S5.cdr3.fasta > 317-L1-Bst4_S5.cdr3.hist
+#Also run for the other output files
 ```
-
-We observe that CDR3 sequence lengths are somewhat varied around a median of 19 amino acids. The complete CDR3 sequences are also available on the HPC reports results page in FASTA format.
 
 ```{R}
 cdrhists <- data.frame(Size=character(0), Count=integer(0), Sample=character(0))
@@ -217,7 +207,7 @@ mafft --retree 0 --treeout --localpair --reorder 317-L1-Bst3_S4.cdr3.fasta > 317
 mafft --retree 0 --treeout --localpair --reorder 317-L1-Bst4_S5.cdr3.fasta > 317-L1-Bst4_S5.cdr3.newick
 ```
 
-We used the guide tree generated in the multiple sequence alignment process to allow a rough visualisation of the CDR3 lineages. These views can be refined to visualise a subset if there is a particular group of sequences of interest.
+We use the guide tree generated in the multiple sequence alignment process to allow a rough visualisation of the CDR3 lineages. These views can be refined to visualise a subset if there is a particular group of sequences of interest.
 
 ```{R}
 for (samplename in c("317-D1-Bst3_S1","317-D1-Bst4_S2","317-L1-Bst2_S3","317-L1-Bst3_S4","317-L1-Bst4_S5")) {
