@@ -1,0 +1,223 @@
+---
+title: "Project B2020-006 Report - updated with only commands"
+author: "Thomas Bleazard and Francesco Lescai"
+date: "09/05/2020"
+output:
+  html_document:
+    theme: readable
+    highlight: tango
+    toc: true
+    toc_float: true
+    css: X:/CODE/projectscode/best_practices/nibsc_report.css
+editor_options:
+  chunk_output_type: console
+---
+
+```{r, echo=FALSE, message=FALSE, error=FALSE, warning=FALSE}
+setwd("X:/CODE/nanoprofiler")
+library(knitr)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(stringr)
+library(kableExtra)
+
+library(ggtree)
+opts_chunk$set(message=FALSE, error=FALSE, warning=FALSE, tidy=TRUE, tidy.opts=list(blank=FALSE), cache=TRUE, cache.lazy = FALSE, echo = FALSE,  results = 'asis', fig.pos='H', fig.wide=TRUE)
+```
+
+## Introduction
+
+We aim to generate the total number of different nanobody CDR3s that exist in a library, and the relative abundance of each. We then perform a basic phylogenetic analysis to show which B cell lineages were affinity matured. For our initial analysis we follow some of the steps used by Deschaght et al (2017).
+
+## Data QC
+
+We perform standard QC of our sequencing data, and also trim the reads to remove adapter read-through sequence and low-quality bases from read ends.
+
+```{bash, eval=FALSE}
+nextflow run /home/AD/tbleazar/CODE/core/workflows/QC/initial-QC.nf --indir /usr/share/sequencing/projects/317/raw_data --qcdir /usr/share/sequencing/projects/317/qc
+nextflow run /home/AD/tbleazar/CODE/core/utilities/trimonly.nf -c /home/AD/tbleazar/CODE/core/workflows/nextflow.config -w /home/AD/tbleazar/nextwork --reads /usr/share/sequencing/projects/317/raw_data --trimoutdir /usr/share/sequencing/projects/317/alignments
+cp /usr/share/sequencing/projects/317/alignments/trimming-summary.csv ~CODE/nanoprofiler
+```
+
+We view the statistics for trimming here, and also check the output from MultiQC.
+
+```{R trimstats}
+trimtable <- read.csv("trimming-summary.csv")
+trimtable$Survived <- trimtable$Trimming.Survivor.Read.Pairs
+trimtable$Removed <- trimtable$Total.Read.Pairs.Sequenced - trimtable$Trimming.Survivor.Read.Pairs
+trimtable <- gather(data=trimtable, key="Total", value="ReadPairs", "Survived", "Removed")
+ggplot(data=trimtable, aes(x=Sample.Name, y=ReadPairs, fill=Total)) +
+  geom_bar(stat="identity") +
+  coord_flip() +
+  ggtitle("Trimming Stats") +
+  xlab("Sample name") +
+  ylab("Total read pairs") +
+  labs(fill = "Trimming survival") 
+```
+
+
+## Analysis Pipeline
+
+To obtain CDR3 sequences, we merge forward and reverse reads to obtain a single sequence for each read pair. We run this merging process with the tool FLASH v1.2.11. We have put the binary for FLASH in this repository for convenience.
+
+```{bash , eval=FALSE}
+cd /usr/share/sequencing/projects/317/alignments/
+for filename in `ls *_L001_R1_001.trimmed.fastq.gz`
+do
+shortname=`echo $filename | sed 's/_L001_R1_001.trimmed.fastq.gz//g'`
+echo $shortname
+./flash --quiet -o $shortname -d /usr/share/sequencing/projects/317/alignments --max-overlap 300 ${shortname}_L001_R1_001.trimmed.fastq.gz ${shortname}_L001_R2_001.trimmed.fastq.gz
+done
+```
+
+Note that the max overlap parameter must be tuned based on expected fragment size and read lengths.
+
+We plot the distribution of merged read lengths.
+
+```{r viewlengthdist}
+for (samplename in c("317-D1-Bst3_S1","317-D1-Bst4_S2","317-L1-Bst2_S3","317-L1-Bst3_S4","317-L1-Bst4_S5")) {
+  lengthfreqs <- read.csv(file=paste0(samplename, "_L001.hist"), sep="\t", header=FALSE)
+  colnames(lengthfreqs) <- c("sequence_length", "count")
+  print(ggplot(data=lengthfreqs) +
+    geom_histogram(aes(x=sequence_length, y=count), stat="identity") +
+    ggtitle(paste0("Distribution of merged sequence lengths for sample ",samplename)))
+}
+```
+
+Because of the way that CD-HIT outputs its cluster results, we first wrote a Python script to process the input FASTQ data to change the read headers to short IDs.
+
+```{bash, eval=FALSE}
+python makeshortheaders.py /usr/share/sequencing/projects/317/alignments/317-D1-Bst3_S1_L001.extendedFrags.fastq /usr/share/sequencing/projects/317/alignments/317-D1-Bst3_S1_L001.relabel.fastq
+python makeshortheaders.py /usr/share/sequencing/projects/317/alignments/317-D1-Bst4_S2_L001.extendedFrags.fastq /usr/share/sequencing/projects/317/alignments/317-D1-Bst4_S2_L001.relabel.fastq
+python makeshortheaders.py /usr/share/sequencing/projects/317/alignments/317-L1-Bst2_S3_L001.extendedFrags.fastq /usr/share/sequencing/projects/317/alignments/317-L1-Bst2_S3_L001.relabel.fastq
+python makeshortheaders.py /usr/share/sequencing/projects/317/alignments/317-L1-Bst3_S4_L001.extendedFrags.fastq /usr/share/sequencing/projects/317/alignments/317-L1-Bst3_S4_L001.relabel.fastq
+python makeshortheaders.py /usr/share/sequencing/projects/317/alignments/317-L1-Bst4_S5_L001.extendedFrags.fastq /usr/share/sequencing/projects/317/alignments/317-L1-Bst4_S5_L001.relabel.fastq
+```
+
+We used the known expected nanobody sequence - running from amino acids MAQ to TVSS - to identify in-frame start sites and translate the merged reads to amino acid sequence. We wrote a custom Python script using Biopython using the initial sequence to perform the translation and retaining only sequences that spanned the known nanobody sequence start and end in frame without stop codons.
+
+```{bash, eval=FALSE}
+module load anaconda/Py2/python2
+conda activate Rtbleazar
+python translate.py /usr/share/sequencing/projects/317/alignments/317-D1-Bst3_S1_L001.relabel.fastq /usr/share/sequencing/projects/317/alignments/317-D1-Bst3_S1.aa.fasta > /usr/share/sequencing/projects/317/log/317-D1-Bst3_S1.translate &
+#Likewise running for the other samples
+```
+
+We proceed to perform clustering of these merged sequences using the tool CD-HIT v4.8.1. We follow as standard the derived cluster threshold of 0.9 used by Deschaght et al (2017).
+
+```{bash, eval=FALSE}
+cd /usr/share/sequencing/projects/317/alignments/
+for filename in `ls *.aa.fasta`
+do
+#shortname=`echo $filename | sed 's/.extendedFrags.fastq//g'`
+#echo $shortname
+#/home/AD/tbleazar/CD-HIT/cdhit/cd-hit -i $filename -o ${shortname}.clusters -c 0.9 -T 10 -M 50000
+sbatch /home/AD/tbleazar/CODE/projectscode/B2020-006/docdhit.sh $filename
+done
+```
+
+We use a Python script to collect the cluster information and summarise the counts of each, using the representative read as the cluster name. 
+
+```{bash, eval=FALSE}
+python /home/AD/tbleazar/CODE/projectscode/B2020-006/readcdout.py /usr/share/sequencing/projects/317/alignments/317-D1-Bst3_S1.aa.clusters.clstr /usr/share/sequencing/projects/317/analysis/317-D1-Bst3_S1.aa.clusters.summary
+#And same for each sample
+```
+
+We review the distribution of members of clusters and their sequence identity to the representative.
+
+```{R}
+clusterbig <- data.frame(Representative=character(0), Count=integer(0), Identity=numeric(0), Sample=character(0))
+for (samplename in c("317-D1-Bst3_S1","317-D1-Bst4_S2","317-L1-Bst2_S3","317-L1-Bst3_S4","317-L1-Bst4_S5")) {
+  clusterdata <- read.csv(file=paste0(samplename, ".aa.clusters.summary"), sep=",", header=TRUE)
+  clusterdata$Sample <- rep(samplename, times=nrow(clusterdata))
+  clusterbig <- rbind(clusterbig, clusterdata)
+  print(ggplot(data=clusterdata) +
+    geom_histogram(aes(x=Count)) +
+    scale_x_continuous(limits = c(0, 500)) +
+    scale_y_continuous(limits=c(0,5000)) +
+    xlab("Number of Cluster Members") +
+    ggtitle(paste0(samplename, " Cluster Sizes")))
+  print(ggplot(data=clusterdata) +
+    geom_point(aes(x=Count, y=Identity), position="jitter") +
+    xlab("Number of Cluster Members") +
+    ylab("Average Sequence Identity to Cluster Representative"))
+}
+```
+
+We summarise cluster counts based on the number of member sequences.
+
+```{R}
+clusterbig$five <- clusterbig$Count >=5
+clusterbig$hundred <- clusterbig$Count >= 100
+clusterbig$thousand <- clusterbig$Count >= 1000
+clustercounts <- clusterbig %>%
+  group_by(Sample) %>%
+  summarize(Clusters = n(), Clusters_of_5 = sum(five), Clusters_of_100 = sum(hundred), Clusters_of_1000 = sum(thousand))
+clustercounts$Input_Sequences <- c(464557,591123,616207,529853,668385) #Manually taken from log
+kable(clustercounts) %>%
+  kable_styling()
+```
+
+We use a Python script to collect the CDR3 sequences only from the full amino acid sequence, using the context of the CDR3 which begins with amino acids which commence after a YYC and terminates with the amino acids which precede a WGQ. We also compute the length distribution of these CDR3 sequences.
+
+Note that this approach is not robust to amino acid sequences which do not follow this pattern, or contain the motifs in other positions.
+
+```{bash, eval=FALSE}
+module load anaconda/Py2/python2
+conda activate Rtbleazar
+python /home/AD/tbleazar/CODE/projectscode/B2020-006/getCDR3.py 317-D1-Bst3_S1.aa.clusters 317-D1-Bst3_S1.cdr3.fasta > 317-D1-Bst3_S1.cdr3.hist
+#Also run for the other output files
+```
+
+```{R}
+cdrhists <- data.frame(Size=character(0), Count=integer(0), Sample=character(0))
+for (samplename in c("317-D1-Bst3_S1","317-D1-Bst4_S2","317-L1-Bst2_S3","317-L1-Bst3_S4","317-L1-Bst4_S5")) {
+  histdata <- read.csv(file=paste0(samplename, ".cdr3.hist"), sep=",", header=TRUE)
+  histdata$Sample <- rep(samplename, times=nrow(histdata))
+  cdrhists <- rbind(cdrhists, histdata)
+}
+cdrcounts <- cdrhists %>%
+  group_by(Sample) %>%
+  summarize(Unique_CDR3s = sum(Count))
+kable(cdrcounts) %>%
+  kable_styling()
+ggplot(data=cdrhists) +
+  geom_histogram(aes(x=Size, y=Count), stat="identity") +
+  facet_wrap(~Sample) +
+  ggtitle("Size Distribution of Unique CDR3s")
+```
+
+We input the set of unique CDR3 sequences into the program MAFFT v7.467 in order to produce a multiple sequence alignment.
+
+```{bash, eval=FALSE}
+#module load anaconda/Py2/python2
+#conda activate Rtbleazar
+#sed 's/@/>/g' 317-D1-Bst3_S1.aa.clusters > 317-D1-Bst3_S1.aa.clusters.fasta
+#t_coffee /usr/share/sequencing/projects/317/alignments/317-D1-Bst3_S1.aa.clusters.fasta -mode quickaln
+#sbatch /home/AD/tbleazar/CODE/projectscode/B2020-006/dotcoffee.sh /usr/share/sequencing/projects/317/alignments/317-D1-Bst3_S1.aa.clusters.fasta
+#cp 317-D1-Bst3_S1.aa.clusters 317-D1-Bst3_S1.aa.clusters.fasta
+#t_coffee -reg -seq /usr/share/sequencing/projects/317/alignments/317-D1-Bst3_S1.aa.clusters -nseq 100 -tree mbed -method clustalo_msa -outfile /usr/share/sequencing/projects/317/alignments/317-D1-Bst3_S1.aln -outtree /usr/share/sequencing/projects/317/alignments/317-D1-Bst3_S1.mbed
+
+module load mafft
+mafft --retree 0 --treeout --localpair --reorder 317-D1-Bst3_S1.cdr3.fasta > 317-D1-Bst3_S1.cdr3.newick
+mafft --retree 0 --treeout --localpair --reorder 317-D1-Bst4_S2.cdr3.fasta > 317-D1-Bst4_S2.cdr3.newick
+mafft --retree 0 --treeout --localpair --reorder 317-L1-Bst2_S3.cdr3.fasta > 317-L1-Bst2_S3.cdr3.newick
+mafft --retree 0 --treeout --localpair --reorder 317-L1-Bst3_S4.cdr3.fasta > 317-L1-Bst3_S4.cdr3.newick
+mafft --retree 0 --treeout --localpair --reorder 317-L1-Bst4_S5.cdr3.fasta > 317-L1-Bst4_S5.cdr3.newick
+```
+
+We use the guide tree generated in the multiple sequence alignment process to allow a rough visualisation of the CDR3 lineages. These views can be refined to visualise a subset if there is a particular group of sequences of interest.
+
+```{R}
+for (samplename in c("317-D1-Bst3_S1","317-D1-Bst4_S2","317-L1-Bst2_S3","317-L1-Bst3_S4","317-L1-Bst4_S5")) {
+  tree <- read.tree(file=paste0(samplename,".cdr3.fasta.tree"))
+  print(ggtree(tree) +
+  ggtitle(paste0(samplename," CDR3 Sequence Lineages")))
+}
+```
+
+
+
+
+
