@@ -23,7 +23,7 @@ process RENAME {
     //container "docker.pkg.github.com/nibscbioinformatics/$MODULE"
     // need to use biocontainers because of problem with github registry
     // requesting o-auth
-    container "ghcr.io/nibscbioinformatics/biopython:v1.78" // TODO -> change with appropriate biocontainer
+    container "quay.io/biocontainers/fastx_toolkit:0.0.14--he1b5a44_8" // TODO -> change with appropriate biocontainer
     // alternatively, now we can choose "nibscbioinformatics/modules:software-version" which is built
     // automatically from the containers definitions
 
@@ -44,12 +44,12 @@ process RENAME {
   script:
   if (params.single_end) {
       """
-      python ${moduleDir}/makeshortheaders.py ${reads[0]} ${meta.sampleID}_renamed.fastq.gz
+      fastx_renamer -z -n COUNT -i ${reads[0]} -o ${meta.sampleID}_renamed.fastq.gz
       """
   } else {
       """
-      python ${moduleDir}/makeshortheaders.py ${reads[0]} ${meta.sampleID}_R1_renamed.fastq.gz
-      python ${moduleDir}/makeshortheaders.py ${reads[1]} ${meta.sampleID}_R2_renamed.fastq.gz
+      fastx_renamer -z -n COUNT -i ${reads[0]} -o ${meta.sampleID}_R1_renamed.fastq.gz
+      fastx_renamer -z -n COUNT -i ${reads[1]} -o ${meta.sampleID}_R2_renamed.fastq.gz
       """
   }
 }
