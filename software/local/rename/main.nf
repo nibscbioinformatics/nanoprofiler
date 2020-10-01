@@ -44,12 +44,12 @@ process RENAME {
   script:
   if (params.single_end) {
       """
-      python ${moduleDir}/makeshortheaders.py reads[0] ${meta.sampleID}_renamed.fastq.gz
+      python ${moduleDir}/makeshortheaders.py ${reads[0]} ${meta.sampleID}_renamed.fastq.gz
       """
   } else {
       """
-      python ${moduleDir}/makeshortheaders.py reads[0] ${meta.sampleID}_R1_renamed.fastq.gz
-      python ${moduleDir}/makeshortheaders.py reads[1] ${meta.sampleID}_R2_renamed.fastq.gz
+      python ${moduleDir}/makeshortheaders.py ${reads[0]} ${meta.sampleID}_R1_renamed.fastq.gz
+      python ${moduleDir}/makeshortheaders.py ${reads[1]} ${meta.sampleID}_R2_renamed.fastq.gz
       """
   }
 }
