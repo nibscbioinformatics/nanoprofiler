@@ -27,7 +27,7 @@ process RENAME {
     // alternatively, now we can choose "nibscbioinformatics/modules:software-version" which is built
     // automatically from the containers definitions
 
-    conda (params.conda ? "${baseDir}/containers/biopython/environment.yml" : null)
+    conda (params.conda ? "${moduleDir}/environment.yml" : null)
 
 
   input:
