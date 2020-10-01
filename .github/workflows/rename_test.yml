@@ -1,0 +1,34 @@
+name: Test RENAME Reads
+on:
+  push:
+    paths:
+      - software/local/rename/**
+      - .github/workflows/rename_test.yml
+  pull_request:
+    paths:
+      - software/local/rename/**
+      - .github/workflows/rename_test.yml
+
+jobs:
+  ci_test:
+    runs-on: ubuntu-latest
+    env:
+      NXF_ANSI_LOG: false
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - name: Install Nextflow
+      run: |
+        export NXF_VER="20.07.1"
+        wget -qO- get.nextflow.io | bash
+        sudo mv nextflow /usr/local/bin/
+
+    # Test the module
+    - name: Run with conda
+      run: |
+        nextflow run ./software/local/rename/test/ --conda true
+
+    - name: Run with docker
+      run: |
+        nextflow run ./software/local/rename/test/ -profile docker
