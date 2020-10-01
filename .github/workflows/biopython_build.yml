@@ -1,0 +1,39 @@
+name: Build Biopython
+
+on:
+  push:
+    # Publish `$default-branch` as Docker `latest` image.
+    branches:
+      - dev
+      - master
+    paths: # TODO --> modify "template" below to refer to your module and your new action
+      - containers/biopython/Dockerfile
+      - containers/biopython/environment.yml
+      - .github/workflows/biopython_build.yml
+
+  # Run tests for any PRs.
+  pull_request:
+
+env:
+  # TODO: Change variable to your image's name.
+  SOFTWARE: biopython
+  VERSION: v1.78
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build image
+        run: |
+          IMAGETAGGED=ghcr.io/nibscbioinformatics/$SOFTWARE:$VERSION
+          docker build --tag $IMAGETAGGED ./software/$SOFTWARE/.
+
+      - name: Log into GitHub Container Registry
+        run: echo "${{ secrets.CR_PAT }}" | docker login https://ghcr.io -u ${{ secrets.GITPACKAGE_USER }} --password-stdin
+
+      - name: Push image to GitHub Container Registry
+        run: |
+          IMAGETAGGED=ghcr.io/nibscbioinformatics/$SOFTWARE:$VERSION
+          docker push $IMAGETAGGED
