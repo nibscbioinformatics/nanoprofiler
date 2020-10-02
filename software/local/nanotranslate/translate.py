@@ -4,6 +4,8 @@
 #Then the translation needs to run from ATGGCACAG (MAQ) up to ACCGTCTCCTCA (TVSS)
 #Note that most merged reads start as: CCGGCCATGGCACAG
 
+#### NB THIS SCRIPT ONLY WORKS WITH FASTQ HEADER SHORT
+
 import Bio
 from Bio.Seq import Seq
 import sys
