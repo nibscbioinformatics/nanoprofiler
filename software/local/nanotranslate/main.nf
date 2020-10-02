@@ -38,7 +38,7 @@ process NANOTRANSLATE {
 
   script:
   """
-  gunzip ${mergedfq} >sequences.fastq
+  gzip -cd ${mergedfq} >sequences.fastq
   python ${moduleDir}/translate.py \
   sequences.fastq \
   ${meta.sampleID}_AA_translated.fasta \
