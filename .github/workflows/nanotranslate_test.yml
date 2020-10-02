@@ -1,13 +1,13 @@
-name: Test NANOTRANSLATE
+name: Test RENAME Reads
 on:
   push:
     paths:
-      - software/local/nanotranslate/**
-      - .github/workflows/nanotranslate_test.yml
+      - software/local/rename/**
+      - .github/workflows/rename_test.yml
   pull_request:
     paths:
-      - software/local/nanotranslate/**
-      - .github/workflows/nanotranslate_test.yml
+      - software/local/rename/**
+      - .github/workflows/rename_test.yml
 
 jobs:
   ci_test:
@@ -27,8 +27,8 @@ jobs:
     # Test the module
     - name: Run with conda
       run: |
-        nextflow run ./software/local/nanotranslate/test/ --conda true
+        nextflow run ./software/local/rename/test/ --conda true
 
     - name: Run with docker
       run: |
-        nextflow run ./software/local/nanotranslate/test/ -profile docker
+        nextflow run ./software/local/rename/test/ -profile docker
