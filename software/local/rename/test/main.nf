@@ -18,6 +18,7 @@ workflow {
   def Map options = [:]
   options.args = ""
   options.args2 = ""
+  options.single_end = false
 
   RENAME(inputSample, options)
 

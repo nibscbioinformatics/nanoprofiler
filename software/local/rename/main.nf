@@ -42,7 +42,7 @@ process RENAME {
   tuple val(meta), path("*.fastq.gz"), emit: renamed
 
   script:
-  if (params.single_end) {
+  if (options.single_end) {
       """
       zcat ${reads[0]} | fastx_renamer -z -n COUNT -o ${meta.sampleID}_renamed.fastq.gz
       """

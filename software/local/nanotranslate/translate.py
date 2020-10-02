@@ -6,7 +6,6 @@
 
 import Bio
 from Bio.Seq import Seq
-from Bio.Alphabet import generic_dna
 import sys
 
 filein = open(sys.argv[1])
@@ -30,7 +29,7 @@ for line in filein:
     endbase = dna.find(endseq)
     if startbase == -1 or endbase == -1: #read fails if missing the start or end sequence
       continue
-    targetregion = Seq(line.rstrip()[startbase:endbase+1+len(endseq)], generic_dna)
+    targetregion = Seq(line.rstrip()[startbase:endbase+1+len(endseq)])
     if len(str(targetregion)) % 3 != 0: #read fails if the grabbed region is not a multiple of three
       continue
     translated = targetregion.translate()
@@ -44,6 +43,3 @@ print("Completed reading reads:")
 print(readsread)
 print("Of which passing and written into FASTA:")
 print(readspassing)
-    
-
-

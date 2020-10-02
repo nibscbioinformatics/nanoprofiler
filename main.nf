@@ -9,6 +9,33 @@
 ----------------------------------------------------------------------------------------
 */
 
+/*#####################################################
+              DEFAULT PARAMS
+#################################################################*/
+
+params.publish_dir_mode = "copy"
+params.single_end = false
+params.conda = false
+params.trim_quality = 30
+params.trim_minlength = 50
+params.trim_adaptertimes = 2
+params.trim_maxerror = 0.1
+params.trim_maxn = 0.4
+params.adapterfile = file("${baseDir}/data/adapters.fa")
+params.flash_max_overlap = 300
+
+
+/*============================================
+### INCLUDE MODULES SECTION ###############
+==============================================*/
+
+include { CUTADAPT } from './software/nibscbioinformatics/cutadapt' params(params)
+include { FLASH } from './software/nibscbioinformatics/flash' params(params)
+include { RENAME } from './softwre/local/rename' params(params)
+include { NANOTRANSLATE } from './softwre/local/nanotranslate' params(params)
+
+
+
 def helpMessage() {
     // TODO nf-core: Add to this help message with new command line parameters
     log.info nfcoreHeader()
@@ -176,6 +203,42 @@ process output_documentation {
     """
     markdown_to_html.py $output_docs -o results_description.html
     """
+}
+
+
+workflow {
+  input = file("${baseDir}/data/test_samples.tsv")
+  inputSample = Channel.empty()
+  inputSample = readInputFile(input, params.single_end)
+
+  def Map cutoptions = [:]
+  cutoptions.args = "-q ${params.trim_quality} --minimum-length ${params.trim_minlength} --times ${params.trim_adaptertimes} -e ${params.trim_maxerror} --max-n ${params.trim_maxn}"
+  cutoptions.args2 = "-q ${params.trim_quality},${params.trim_quality} --minimum-length ${params.trim_minlength} --times ${params.trim_adaptertimes} -e ${params.trim_maxerror} --max-n ${params.trim_maxn}"
+  cutoptions.adapterfile3 = params.adapterfile
+  cutoptions.adapterfile5 = params.adapterfile
+
+  CUTADAPT(inputSample, cutoptions)
+
+  def Map flashoptions = [:]
+  flashoptions.args = "--max-overlap ${params.flash_max_overlap}"
+  flashoptions.args2 = ''
+  FLASH(CUTADAPT.out.reads, flashoptions)
+
+  def Map nulloptions = [:]
+  options.args = ""
+  options.args2 = ""
+
+  def Map renameoptions = [:]
+  options.args = ""
+  options.args2 = ""
+  options.single_end = true // this is because output of FLASH merges R1 and R2
+
+  RENAME(FLASH.out.reads, renameoptions)
+
+  NANOTRANSLATE(RENAME.out.renamed, nulloptions)
+
+  // NANOTRANSLATE.out.fasta
+
 }
 
 /*
