@@ -25,7 +25,7 @@ workflow {
   // so a test should always been implemented to check
   // the output corresponds to what expected
 
-  RENAME.out.fasta.map { map, fasta ->
+  NANOTRANSLATE.out.fasta.map { map, fasta ->
 
     assert fasta.exists()
     assert fasta.getExtension() == "fasta"
