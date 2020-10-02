@@ -53,7 +53,7 @@ ggplot(data=trimtable, aes(x=Sample.Name, y=ReadPairs, fill=Total)) +
   ggtitle("Trimming Stats") +
   xlab("Sample name") +
   ylab("Total read pairs") +
-  labs(fill = "Trimming survival") 
+  labs(fill = "Trimming survival")
 ```
 
 
@@ -88,11 +88,25 @@ for (samplename in c("317-D1-Bst3_S1","317-D1-Bst4_S2","317-L1-Bst2_S3","317-L1-
 Because of the way that CD-HIT outputs its cluster results, we first wrote a Python script to process the input FASTQ data to change the read headers to short IDs.
 
 ```{bash, eval=FALSE}
-python makeshortheaders.py /usr/share/sequencing/projects/317/alignments/317-D1-Bst3_S1_L001.extendedFrags.fastq /usr/share/sequencing/projects/317/alignments/317-D1-Bst3_S1_L001.relabel.fastq
-python makeshortheaders.py /usr/share/sequencing/projects/317/alignments/317-D1-Bst4_S2_L001.extendedFrags.fastq /usr/share/sequencing/projects/317/alignments/317-D1-Bst4_S2_L001.relabel.fastq
-python makeshortheaders.py /usr/share/sequencing/projects/317/alignments/317-L1-Bst2_S3_L001.extendedFrags.fastq /usr/share/sequencing/projects/317/alignments/317-L1-Bst2_S3_L001.relabel.fastq
-python makeshortheaders.py /usr/share/sequencing/projects/317/alignments/317-L1-Bst3_S4_L001.extendedFrags.fastq /usr/share/sequencing/projects/317/alignments/317-L1-Bst3_S4_L001.relabel.fastq
-python makeshortheaders.py /usr/share/sequencing/projects/317/alignments/317-L1-Bst4_S5_L001.extendedFrags.fastq /usr/share/sequencing/projects/317/alignments/317-L1-Bst4_S5_L001.relabel.fastq
+python makeshortheaders.py \
+/usr/share/sequencing/projects/317/alignments/317-D1-Bst3_S1_L001.extendedFrags.fastq \
+/usr/share/sequencing/projects/317/alignments/317-D1-Bst3_S1_L001.relabel.fastq
+
+python makeshortheaders.py \
+/usr/share/sequencing/projects/317/alignments/317-D1-Bst4_S2_L001.extendedFrags.fastq \
+/usr/share/sequencing/projects/317/alignments/317-D1-Bst4_S2_L001.relabel.fastq
+
+python makeshortheaders.py \
+/usr/share/sequencing/projects/317/alignments/317-L1-Bst2_S3_L001.extendedFrags.fastq \
+/usr/share/sequencing/projects/317/alignments/317-L1-Bst2_S3_L001.relabel.fastq
+
+python makeshortheaders.py \
+/usr/share/sequencing/projects/317/alignments/317-L1-Bst3_S4_L001.extendedFrags.fastq \
+/usr/share/sequencing/projects/317/alignments/317-L1-Bst3_S4_L001.relabel.fastq
+
+python makeshortheaders.py \
+/usr/share/sequencing/projects/317/alignments/317-L1-Bst4_S5_L001.extendedFrags.fastq \
+/usr/share/sequencing/projects/317/alignments/317-L1-Bst4_S5_L001.relabel.fastq
 ```
 
 We used the known expected nanobody sequence - running from amino acids MAQ to TVSS - to identify in-frame start sites and translate the merged reads to amino acid sequence. We wrote a custom Python script using Biopython using the initial sequence to perform the translation and retaining only sequences that spanned the known nanobody sequence start and end in frame without stop codons.
@@ -100,7 +114,11 @@ We used the known expected nanobody sequence - running from amino acids MAQ to T
 ```{bash, eval=FALSE}
 module load anaconda/Py2/python2
 conda activate Rtbleazar
-python translate.py /usr/share/sequencing/projects/317/alignments/317-D1-Bst3_S1_L001.relabel.fastq /usr/share/sequencing/projects/317/alignments/317-D1-Bst3_S1.aa.fasta > /usr/share/sequencing/projects/317/log/317-D1-Bst3_S1.translate &
+
+python translate.py \
+/usr/share/sequencing/projects/317/alignments/317-D1-Bst3_S1_L001.relabel.fastq \
+/usr/share/sequencing/projects/317/alignments/317-D1-Bst3_S1.aa.fasta \
+> /usr/share/sequencing/projects/317/log/317-D1-Bst3_S1.translate &
 #Likewise running for the other samples
 ```
 
@@ -117,7 +135,7 @@ sbatch /home/AD/tbleazar/CODE/projectscode/B2020-006/docdhit.sh $filename
 done
 ```
 
-We use a Python script to collect the cluster information and summarise the counts of each, using the representative read as the cluster name. 
+We use a Python script to collect the cluster information and summarise the counts of each, using the representative read as the cluster name.
 
 ```{bash, eval=FALSE}
 python /home/AD/tbleazar/CODE/projectscode/B2020-006/readcdout.py /usr/share/sequencing/projects/317/alignments/317-D1-Bst3_S1.aa.clusters.clstr /usr/share/sequencing/projects/317/analysis/317-D1-Bst3_S1.aa.clusters.summary
@@ -216,8 +234,3 @@ for (samplename in c("317-D1-Bst3_S1","317-D1-Bst4_S2","317-L1-Bst2_S3","317-L1-
   ggtitle(paste0(samplename," CDR3 Sequence Lineages")))
 }
 ```
-
-
-
-
-

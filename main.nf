@@ -55,23 +55,6 @@ if (params.help) {
 /*
  * SET UP CONFIGURATION VARIABLES
  */
-
-// Check if genome exists in the config file
-if (params.genomes && params.genome && !params.genomes.containsKey(params.genome)) {
-    exit 1, "The provided genome '${params.genome}' is not available in the iGenomes file. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
-}
-
-// TODO nf-core: Add any reference files that are needed
-// Configurable reference genomes
-//
-// NOTE - THIS IS NOT USED IN THIS PIPELINE, EXAMPLE ONLY
-// If you want to use the channel below in a process, define the following:
-//   input:
-//   file fasta from ch_fasta
-//
-params.fasta = params.genome ? params.genomes[ params.genome ].fasta ?: false : false
-if (params.fasta) { ch_fasta = file(params.fasta, checkIfExists: true) }
-
 // Has the run name been specified by the user?
 //  this has the bonus effect of catching both -name and --name
 custom_runName = params.name
@@ -94,29 +77,7 @@ ch_multiqc_config = file("$baseDir/assets/multiqc_config.yaml", checkIfExists: t
 ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config, checkIfExists: true) : Channel.empty()
 ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
 
-/*
- * Create a channel for input read files
- */
-if (params.readPaths) {
-    if (params.single_end) {
-        Channel
-            .from(params.readPaths)
-            .map { row -> [ row[0], [ file(row[1][0], checkIfExists: true) ] ] }
-            .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
-            .into { ch_read_files_fastqc; ch_read_files_trimming }
-    } else {
-        Channel
-            .from(params.readPaths)
-            .map { row -> [ row[0], [ file(row[1][0], checkIfExists: true), file(row[1][1], checkIfExists: true) ] ] }
-            .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
-            .into { ch_read_files_fastqc; ch_read_files_trimming }
-    }
-} else {
-    Channel
-        .fromFilePairs(params.reads, size: params.single_end ? 1 : 2)
-        .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads}\nNB: Path needs to be enclosed in quotes!\nIf this is single-end data, please specify --single_end on the command line." }
-        .into { ch_read_files_fastqc; ch_read_files_trimming }
-}
+
 
 // Header log info
 log.info nfcoreHeader()
@@ -195,57 +156,9 @@ process get_software_versions {
     """
 }
 
-/*
- * STEP 1 - FastQC
- */
-process fastqc {
-    tag "$name"
-    label 'process_medium'
-    publishDir "${params.outdir}/fastqc", mode: 'copy',
-        saveAs: { filename ->
-                      filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"
-                }
 
-    input:
-    set val(name), file(reads) from ch_read_files_fastqc
 
-    output:
-    file "*_fastqc.{zip,html}" into ch_fastqc_results
 
-    script:
-    """
-    fastqc --quiet --threads $task.cpus $reads
-    """
-}
-
-/*
- * STEP 2 - MultiQC
- */
-process multiqc {
-    publishDir "${params.outdir}/MultiQC", mode: 'copy'
-
-    input:
-    file (multiqc_config) from ch_multiqc_config
-    file (mqc_custom_config) from ch_multiqc_custom_config.collect().ifEmpty([])
-    // TODO nf-core: Add in log files from your new processes for MultiQC to find!
-    file ('fastqc/*') from ch_fastqc_results.collect().ifEmpty([])
-    file ('software_versions/*') from ch_software_versions_yaml.collect()
-    file workflow_summary from ch_workflow_summary.collectFile(name: "workflow_summary_mqc.yaml")
-
-    output:
-    file "*multiqc_report.html" into ch_multiqc_report
-    file "*_data"
-    file "multiqc_plots"
-
-    script:
-    rtitle = custom_runName ? "--title \"$custom_runName\"" : ''
-    rfilename = custom_runName ? "--filename " + custom_runName.replaceAll('\\W','_').replaceAll('_+','_') + "_multiqc_report" : ''
-    custom_config_file = params.multiqc_config ? "--config $mqc_custom_config" : ''
-    // TODO nf-core: Specify which MultiQC modules to use with -m for a faster run time
-    """
-    multiqc -f $rtitle $rfilename $custom_config_file .
-    """
-}
 
 /*
  * STEP 3 - Output Description HTML
@@ -423,4 +336,51 @@ def checkHostname() {
             }
         }
     }
+}
+
+
+
+// ############## WARNING !!! #########################
+// the part below is going to be transferred to a module soon
+// ############## UTILITIES AND SAMPLE LOADING ######################
+
+// ### preliminary check functions
+
+def checkExtension(file, extension) {
+    file.toString().toLowerCase().endsWith(extension.toLowerCase())
+}
+
+def checkFile(filePath, extension) {
+  // first let's check if has the correct extension
+  if (!checkExtension(filePath, extension)) exit 1, "File: ${filePath} has the wrong extension. See --help for more information"
+  // then we check if the file exists
+  if (!file(filePath).exists()) exit 1, "Missing file in TSV file: ${filePath}, see --help for more information"
+  // if none of the above has thrown an error, return the file
+  return(file(filePath))
+}
+
+// the function expects a tab delimited sample sheet, with a header in the first line
+// the header will name the variables and therefore there are a few mandatory names
+// sampleID to indicate the sample name or unique identifier
+// read1 to indicate read_1.fastq.gz, i.e. R1 read or forward read
+// read2 to indicate read_2.fastq.gz, i.e. R2 read or reverse read
+// any other column should fulfill the requirements of modules imported in main
+// the function also expects a boolean for single or paired end reads from params
+
+def readInputFile(tsvFile, single_end) {
+    Channel.from(tsvFile)
+        .splitCsv(header:true, sep: '\t')
+        .map { row ->
+            def meta = [:]
+            def reads = []
+            def sampleinfo = []
+            meta.sampleID = row.sampleID
+            if (single_end) {
+              reads = checkFile(row.read1, "fastq.gz")
+            } else {
+              reads = [ checkFile(row.read1, "fastq.gz"), checkFile(row.read2, "fastq.gz") ]
+            }
+            sampleinfo = [ meta, reads ]
+            return sampleinfo
+        }
 }
