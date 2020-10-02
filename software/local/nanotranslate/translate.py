@@ -11,7 +11,7 @@ from Bio.Seq import Seq
 import sys
 import gzip
 
-filein = gzip.open(sys.argv[1], "r")
+filein = open(sys.argv[1])
 fileout = open(sys.argv[2], "w")
 
 startseq = "ATGGCACAG"
