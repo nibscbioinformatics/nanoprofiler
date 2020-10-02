@@ -44,12 +44,12 @@ process RENAME {
   script:
   if (params.single_end) {
       """
-      fastx_renamer -z -n COUNT -i ${reads[0]} -o ${meta.sampleID}_renamed.fastq.gz
+      zcat ${reads[0]} | fastx_renamer -z -n COUNT -o ${meta.sampleID}_renamed.fastq.gz
       """
   } else {
       """
-      fastx_renamer -z -n COUNT -i ${reads[0]} -o ${meta.sampleID}_R1_renamed.fastq.gz
-      fastx_renamer -z -n COUNT -i ${reads[1]} -o ${meta.sampleID}_R2_renamed.fastq.gz
+      zcat ${reads[0]} | fastx_renamer -z -n COUNT -o ${meta.sampleID}_R1_renamed.fastq.gz
+      zcat ${reads[1]} | fastx_renamer -z -n COUNT -o ${meta.sampleID}_R2_renamed.fastq.gz
       """
   }
 }
