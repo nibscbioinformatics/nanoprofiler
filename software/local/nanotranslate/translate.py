@@ -9,8 +9,9 @@
 import Bio
 from Bio.Seq import Seq
 import sys
+import gzip
 
-filein = open(sys.argv[1])
+filein = gzip.open(sys.argv[1], "r")
 fileout = open(sys.argv[2], "w")
 
 startseq = "ATGGCACAG"
