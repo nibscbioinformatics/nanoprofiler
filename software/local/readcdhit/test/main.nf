@@ -74,9 +74,9 @@ def readInputFile(tsvFile, single_end) {
             def sampleinfo = []
             meta.sampleID = row.sampleID
             if (single_end) {
-              reads = checkFile(row.read1, "clusters")
+              reads = checkFile(row.read1, "clstr")
             } else {
-              reads = [ checkFile(row.read1, "clusters"), checkFile(row.read2, "clusters") ]
+              reads = [ checkFile(row.read1, "clstr"), checkFile(row.read2, "clstr") ]
             }
             sampleinfo = [ meta, reads ]
             return sampleinfo
