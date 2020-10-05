@@ -32,6 +32,8 @@ process CUTADAPT {
   // it is accessible via meta.name where ".name" is the name of the metadata
   // these MUST be described in the meta.yml when the metatada are expected by the process
   tuple val(meta), path(reads)
+  path(adapterfile3)
+  path(adapterfile5)
 
   // configuration parameters are accessible via
   // params.modules['modulename'].name
@@ -50,8 +52,8 @@ process CUTADAPT {
     """
     cutadapt \
     -j ${task.cpus} \
-    -a file:${options.adapterfile3} \
-    -g file:${options.adapterfile5} \
+    -a file:${adapterfile3} \
+    -g file:${adapterfile5} \
     -o ${sampleprefix}_R1_trimmed.fastq.gz \
     ${reads[0]} \
     ${cutopts.args} \
