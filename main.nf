@@ -162,7 +162,7 @@ Channel.from(summary.collect{ [it.key, it.value] })
 /*
  * Parse software version numbers
  */
-process get_software_versions {
+process GETVERSIONS {
     publishDir "${params.outdir}/pipeline_info", mode: 'copy',
         saveAs: { filename ->
                       if (filename.indexOf(".csv") > 0) filename
@@ -170,8 +170,8 @@ process get_software_versions {
                 }
 
     output:
-    file 'software_versions_mqc.yaml' into ch_software_versions_yaml
-    file "software_versions.csv"
+    file('software_versions_mqc.yaml'), emit: ch_software_versions_yaml
+    file("software_versions.csv"), emit: versions
 
     script:
     // TODO nf-core: Get all tools to print their version number here
@@ -191,14 +191,14 @@ process get_software_versions {
 /*
  * STEP 3 - Output Description HTML
  */
-process output_documentation {
+process OUTDOCS {
     publishDir "${params.outdir}/pipeline_info", mode: 'copy'
 
     input:
-    file output_docs from ch_output_docs
+    file(output_docs)
 
     output:
-    file "results_description.html"
+    file("results_description.html"), emit: html
 
     script:
     """
@@ -211,6 +211,9 @@ workflow {
   input = file("${baseDir}/data/test_samples.tsv")
   inputSample = Channel.empty()
   inputSample = readInputFile(input, params.single_end)
+
+  GETVERSIONS()
+  
 
   def Map cutoptions = [:]
   cutoptions.args = "-q ${params.trim_quality} --minimum-length ${params.trim_minlength} --times ${params.trim_adaptertimes} -e ${params.trim_maxerror} --max-n ${params.trim_maxn}"
