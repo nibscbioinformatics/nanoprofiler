@@ -41,6 +41,6 @@ process GETCDR3 {
   python ${moduleDir}/getCDR3.py \
   -i ${translated} \
   -c ${meta.sampleID}_cdr3.fasta \
-  -h ${meta.sampleID}_cdr3.hist
+  -o ${meta.sampleID}_cdr3.hist
   """
 }

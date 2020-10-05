@@ -16,7 +16,7 @@ parser.add_argument("-i", "--input", help="cdhit clusters file",
                     action="store_true")
 parser.add_argument("-c", "--cdr", help="output CDR3 fasta file",
                     action="store_true")
-parser.add_argument("-h", "--hist", help="output histogram file",
+parser.add_argument("-o", "--hist", help="output histogram file",
                     action="store_true")
 args = parser.parse_args()
 

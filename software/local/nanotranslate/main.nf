@@ -1,4 +1,4 @@
-def MODULE = "nanotranslate"
+          def MODULE = "nanotranslate"
 params.publish_dir = MODULE
 params.publish_results = "default"
 
