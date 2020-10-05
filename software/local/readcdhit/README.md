@@ -1,11 +1,14 @@
-# Nextflow Module Template
-
-![Test Template](https://github.com/nibscbioinformatics/modules/workflows/Test%20Template/badge.svg)
-![Docker Build & Push](https://github.com/nibscbioinformatics/modules/workflows/Docker%20Build%20&%20Push/badge.svg)
+# GET CDR3 sequences
 
 ## Add Software information
 
-Here some more information should be added, using what has been collected in the YAML file
+Run in-house python script to collect the CDR3 sequences only
+  from the full amino acid sequence, using the context of the CDR3 which
+  begins with amino acids which commence after a YYC and terminates with
+  the amino acids which precede a WGQ. We also compute the length distribution of
+  these CDR3 sequences.
+  Note that this approach is not robust to amino acid sequences which do not follow
+  this pattern, or contain the motifs in other positions.
 
 ## Add information about the process
 

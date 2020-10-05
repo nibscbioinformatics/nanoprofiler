@@ -3,16 +3,10 @@
 nextflow.preview.dsl = 2
 params.outdir = "test_output"
 params.publish_dir_mode = "copy"
-params.single_end = false
+params.single_end = true
 params.conda = false
-params.trim_quality = 30
-params.trim_minlength = 50
-params.trim_adaptertimes = 2
-params.trim_maxerror = 0.1
-params.trim_maxn = 0.4
-params.adapterfile = file("${baseDir}/data/adapters.fa")
 
-include { CUTADAPT } from '../main.nf' params(params)
+include { READCDHIT } from '../main.nf' params(params)
 
 
 workflow {
@@ -22,25 +16,19 @@ workflow {
 
   // fake options - should be a groovy map but ok for testing now
   def Map options = [:]
-  options.args = "-q ${params.trim_quality} --minimum-length ${params.trim_minlength} --times ${params.trim_adaptertimes} -e ${params.trim_maxerror} --max-n ${params.trim_maxn}"
-  options.args2 = "-q ${params.trim_quality},${params.trim_quality} --minimum-length ${params.trim_minlength} --times ${params.trim_adaptertimes} -e ${params.trim_maxerror} --max-n ${params.trim_maxn}"
-  options.adapterfile3 = params.adapterfile
-  options.adapterfile5 = params.adapterfile
+  options.args = ""
+  options.args2 = ""
 
-  CUTADAPT(inputSample, options)
+  READCDHIT(inputSample, options)
 
   // ## IMPORTANT this is a test workflow
   // so a test should always been implemented to check
   // the output corresponds to what expected
 
-  CUTADAPT.out.reads.map { map, reads ->
-    read1 = reads[0]
-    read2 = reads[1]
+  GETCDR3.out.fasta.map { map, summary ->
 
-    assert read1.exists()
-    assert read2.exists()
-    assert read1.getExtension() == "gz"
-    assert read2.getExtension() == "gz"
+    assert summary.exists()
+    assert summary.getExtension() == "summary"
 
   }
 
@@ -86,9 +74,9 @@ def readInputFile(tsvFile, single_end) {
             def sampleinfo = []
             meta.sampleID = row.sampleID
             if (single_end) {
-              reads = checkFile(row.read1, "fastq.gz")
+              reads = checkFile(row.read1, "clusters")
             } else {
-              reads = [ checkFile(row.read1, "fastq.gz"), checkFile(row.read2, "fastq.gz") ]
+              reads = [ checkFile(row.read1, "clusters"), checkFile(row.read2, "clusters") ]
             }
             sampleinfo = [ meta, reads ]
             return sampleinfo

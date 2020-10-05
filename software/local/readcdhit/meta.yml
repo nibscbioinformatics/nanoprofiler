@@ -1,24 +1,18 @@
-name: FastQC
-description: Run FastQC on sequenced reads
+name: GETCDR3
+description: Run in-house python script to collect the CDR3 sequences only
+  from the full amino acid sequence, using the context of the CDR3 which
+  begins with amino acids which commence after a YYC and terminates with
+  the amino acids which precede a WGQ. We also compute the length distribution of
+  these CDR3 sequences.
+  Note that this approach is not robust to amino acid sequences which do not follow
+  this pattern, or contain the motifs in other positions.
 keywords:
-  - Quality Control
-  - QC
+  - Sequence retrieval
 tools:
-  - fastqc:
+  - getCDR3.py:
       description: |
-        FastQC produces a complete reports with metrics on your sequencing reads
-        that help assessing the quality of your sequences and identify potential
-        problems with the data. In particular, base quality, GC content as well as
-        duplication levels and overrepresented sequences will help identifying how
-        to inform any following step (for example, trimming).
-      homepage: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/
-      documentation: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/
+        see above
 params:
-  - params.modules['fastqc'].args:
-      type: string
-      description: Additional command line arguments passed to fastqc
-        these are expected to be defined in a structured format under params.modules{}
-        in the nextflow.config file
   - out_dir:
       type: string
       description: |
@@ -41,12 +35,7 @@ params:
         Whether or not to publish results into `publish_dir`. Set to `none` to not
         publish any files at all; to `default` to publish all relevant files.
       default: set to 'default', i.e. publishes all relevant files.
-  - single_end:
-    type: boolean
-    description: |
-      Boolean indicating whether the corresponding sample is single-end (true)
-      or paired-end (false).
-    default: false
+
 input:
   - meta:
       type: map
@@ -58,22 +47,19 @@ input:
       - sampleID:
         type: string
         description: Sample identifier
-  - reads:
+  - translated:
       type: file
       description: |
-        The list is passed in a tuple with the sample metadata (meta).
-        List of input FastQ files of size 1 and 2 for single-end and paired-end data,
-        respectively.
+        FASTA file of aminoacid sequences as translated by in-house script and
+        clustered by CD-HIT
 output:
-  - html:
+  - fasta:
       type: tuple
-      description: Metadata map (meta) together with FastQC report (type: file)
-      pattern: "*_fastqc.html"
-  - zip:
+      description: Metadata map (meta) together with FASTA seqience file (type: file)
+      pattern: "*_cdr3.fasta"
+  - hist:
       type: tuple
-      description: Metadata map (meta) together with FastQC report (type: file)
-      pattern: "*_fastqc.zip"
-  - version:
-      type: file
-      description: software version
-      pattern: "*.version.txt"
+      description: |
+          Metadata map (meta) together with histogram calculated from
+          clusters (type: file)
+      pattern: "*_cdr3.hist"
