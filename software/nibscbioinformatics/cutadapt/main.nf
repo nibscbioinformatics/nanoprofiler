@@ -33,7 +33,6 @@ process CUTADAPT {
   // these MUST be described in the meta.yml when the metatada are expected by the process
   tuple val(meta), path(reads)
   path(adapterfile)
-
   val options
 
   output:

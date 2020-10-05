@@ -26,8 +26,9 @@ workflow {
   options.args2 = "-q ${params.trim_quality},${params.trim_quality} --minimum-length ${params.trim_minlength} --times ${params.trim_adaptertimes} -e ${params.trim_maxerror} --max-n ${params.trim_maxn}"
 
   // there is only one adapter
+  adapter = params.adapterfile ? Channel.value(file(params.adapterfile)) : "null"
 
-  CUTADAPT(inputSample, params.adapterfile, options)
+  CUTADAPT(inputSample, adapter, options)
 
   // ## IMPORTANT this is a test workflow
   // so a test should always been implemented to check
