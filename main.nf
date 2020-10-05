@@ -34,7 +34,7 @@ params.flash_max_overlap = 300
 // general use modules 
 include { CUTADAPT } from './software/nibscbioinformatics/cutadapt/main.nf' params(params)
 include { FLASH } from './software/nibscbioinformatics/flash/main.nf' params(params)
-include { CDHIT } from './software/nibscbioinformatics/cdhit/main.nf' params(params)
+include { CDHIT } from './software/nibscbioinformatics/cd-hit/main.nf' params(params)
 include { MAFFT } from './software/nibscbioinformatics/mafft/main.nf' params(params)
 
 // local use modules
