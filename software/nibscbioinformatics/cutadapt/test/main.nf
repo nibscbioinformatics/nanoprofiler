@@ -25,7 +25,11 @@ workflow {
   options.args = "-q ${params.trim_quality} --minimum-length ${params.trim_minlength} --times ${params.trim_adaptertimes} -e ${params.trim_maxerror} --max-n ${params.trim_maxn}"
   options.args2 = "-q ${params.trim_quality},${params.trim_quality} --minimum-length ${params.trim_minlength} --times ${params.trim_adaptertimes} -e ${params.trim_maxerror} --max-n ${params.trim_maxn}"
 
-  CUTADAPT(inputSample, params.adapterfile, params.adapterfile, options)
+  // there is only one adapter
+  adapter5 = file(params.adapterfile)
+  adapter5.renameTo('adapter5.fa')
+
+  CUTADAPT(inputSample, params.adapterfile, adapter5, options)
 
   // ## IMPORTANT this is a test workflow
   // so a test should always been implemented to check
