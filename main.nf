@@ -32,16 +32,16 @@ params.flash_max_overlap = 300
 ==============================================*/
 
 // general use modules 
-include { CUTADAPT } from './software/nibscbioinformatics/cutadapt' params(params)
-include { FLASH } from './software/nibscbioinformatics/flash' params(params)
-include { CDHIT } from './software/nibscbioinformatics/cdhit' params(params)
-include { MAFFT } from './software/nibscbioinformatics/mafft' params(params)
+include { CUTADAPT } from './software/nibscbioinformatics/cutadapt/main.nf' params(params)
+include { FLASH } from './software/nibscbioinformatics/flash/main.nf' params(params)
+include { CDHIT } from './software/nibscbioinformatics/cdhit/main.nf' params(params)
+include { MAFFT } from './software/nibscbioinformatics/mafft/main.nf' params(params)
 
 // local use modules
-include { RENAME } from './software/local/rename' params(params)
-include { NANOTRANSLATE } from './software/local/nanotranslate' params(params)
-include { READCDHIT } from './software/local/readcdhit' params(params)
-include { GETCDR3 } from './software/local/getcdr3' params(params)
+include { RENAME } from './software/local/rename/main.nf' params(params)
+include { NANOTRANSLATE } from './software/local/nanotranslate/main.nf' params(params)
+include { READCDHIT } from './software/local/readcdhit/main.nf' params(params)
+include { GETCDR3 } from './software/local/getcdr3/main.nf' params(params)
 
 
 
