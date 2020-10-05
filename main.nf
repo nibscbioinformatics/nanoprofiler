@@ -217,7 +217,7 @@ workflow {
   inputSample = readInputFile(params.input, params.single_end)
 
   GETVERSIONS()
-  OUTDOCS(ch_output_docss)
+  OUTDOCS(ch_output_docs)
   
 
   def Map cutoptions = [:]
