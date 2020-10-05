@@ -1,13 +1,13 @@
-name: Test Translate
+name: Test GETCDR3
 on:
   push:
     paths:
-      - software/local/nanotranslate/**
-      - .github/workflows/nanotranslate_test.yml
+      - software/local/getcdr3/**
+      - .github/workflows/getcdr3_test.yml
   pull_request:
     paths:
-      - software/local/nanotranslate/**
-      - .github/workflows/nanotranslate_test.yml
+      - software/local/getcdr3/**
+      - .github/workflows/getcdr3_test.yml
 
 jobs:
   ci_test:
@@ -27,8 +27,8 @@ jobs:
     # Test the module
     - name: Run with conda
       run: |
-        nextflow run ./software/local/nanotranslate/test/ --conda true
+        nextflow run ./software/local/getcdr3/test/ --conda true
 
     - name: Run with docker
       run: |
-        nextflow run ./software/local/nanotranslate/test/ -profile docker
+        nextflow run ./software/local/getcdr3/test/ -profile docker
