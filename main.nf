@@ -21,7 +21,6 @@ params.trim_minlength = 50
 params.trim_adaptertimes = 2
 params.trim_maxerror = 0.1
 params.trim_maxn = 0.4
-params.adapterfile = file("${baseDir}/data/adapters.fa")
 params.flash_max_overlap = 300
 
 
@@ -208,9 +207,8 @@ process OUTDOCS {
 
 
 workflow {
-  input = file("${baseDir}/data/test_samples.tsv")
   inputSample = Channel.empty()
-  inputSample = readInputFile(input, params.single_end)
+  inputSample = readInputFile(params.input, params.single_end)
 
   GETVERSIONS()
   
