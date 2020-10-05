@@ -172,8 +172,8 @@ process GETVERSIONS {
                 }
 
     output:
-    file('software_versions_mqc.yaml') emit: ch_software_versions_yaml
-    file("software_versions.csv") emit: versions
+    path("software_versions_mqc.yaml"), emit: ch_software_versions_yaml
+    path("software_versions.csv"), emit: versions
 
     script:
     // TODO nf-core: Get all tools to print their version number here
@@ -200,7 +200,7 @@ process OUTDOCS {
     file(output_docs)
 
     output:
-    file("results_description.html"), emit: html
+    path("results_description.html"), emit: html
 
     script:
     """
