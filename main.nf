@@ -234,13 +234,13 @@ workflow {
   FLASH(CUTADAPT.out.reads, flashoptions)
 
   def Map nulloptions = [:]
-  options.args = ""
-  options.args2 = ""
+  nulloptions.args = ""
+  nulloptions.args2 = ""
 
   def Map renameoptions = [:]
-  options.args = ""
-  options.args2 = ""
-  options.single_end = true // this is because output of FLASH merges R1 and R2
+  renameoptions.args = ""
+  renameoptions.args2 = ""
+  renameoptions.single_end = true // this is because output of FLASH merges R1 and R2
 
   RENAME(FLASH.out.reads, renameoptions)
 
