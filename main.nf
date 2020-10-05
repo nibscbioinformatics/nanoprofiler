@@ -33,6 +33,7 @@ include { CUTADAPT } from './software/nibscbioinformatics/cutadapt' params(param
 include { FLASH } from './software/nibscbioinformatics/flash' params(params)
 include { RENAME } from './softwre/local/rename' params(params)
 include { NANOTRANSLATE } from './softwre/local/nanotranslate' params(params)
+include { CDHIT } from './software/nibscbioinformatics/cdhit' params(params)
 
 
 
@@ -237,7 +238,15 @@ workflow {
 
   NANOTRANSLATE(RENAME.out.renamed, nulloptions)
 
-  // NANOTRANSLATE.out.fasta
+  CDHIT(NANOTRANSLATE.out.fasta, nulloptions)
+
+  //CDHIT.out.clusters
+
+  READCDHIT(CDHIT.out.clusters, nulloptions)
+
+  GETCDR3(CDHIT.out.clusters, nulloptions)
+  //GETCDR3.out.fasta
+
 
 }
 
