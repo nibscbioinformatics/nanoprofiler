@@ -174,6 +174,8 @@ process GETVERSIONS {
                       else null
                 }
 
+    container "ghcr.io/nibscbioinformatics/biopython:v1.78"
+    
     output:
     path 'software_versions_mqc.yaml', emit: ch_software_versions_yaml
     path 'software_versions.csv', emit: versions
@@ -199,6 +201,8 @@ process GETVERSIONS {
 process OUTDOCS {
     publishDir "${params.outdir}/pipeline_info", mode: 'copy'
 
+    container "ghcr.io/nibscbioinformatics/biopython:v1.78"
+    
     input:
     file(output_docs)
 
