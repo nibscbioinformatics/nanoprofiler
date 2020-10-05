@@ -13,11 +13,11 @@ from Bio.Seq import Seq
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", help="cdhit clusters file",
-                    action="store_true")
+                    action="store", dest = "input")
 parser.add_argument("-c", "--cdr", help="output CDR3 fasta file",
-                    action="store_true")
+                    action="store", dest = "cdr")
 parser.add_argument("-o", "--hist", help="output histogram file",
-                    action="store_true")
+                    action="store", dest = "hist")
 args = parser.parse_args()
 
 bigset = set()
