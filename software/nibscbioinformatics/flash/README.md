@@ -1,0 +1,59 @@
+# FLASH
+
+![Test FLASH](https://github.com/nibscbioinformatics/modules/workflows/Test%20FLASH/badge.svg)
+![Build FLASH](https://github.com/nibscbioinformatics/modules/workflows/Build%20FLASH/badge.svg)
+
+## Software information
+
+FLASH (Fast Length Adjustment of SHort reads) is a software tool to merge paired-end reads
+from next-generation sequencing experiments.
+FLASH is designed to merge pairs of reads when the original DNA fragments are shorter than
+twice the length of reads. The resulting longer reads can significantly improve genome assemblies.
+They can also improve transcriptome assembly when FLASH is used to merge RNA-seq data. ([see homepage](https://ccb.jhu.edu/software/FLASH/))
+
+## Information about the process
+
+### Expected parameters
+
+  - out_dir:
+      type: string
+      description: The pipeline's output directory. By default, the module will output files into `$out_dir/MODULE_NAME`
+  - publish_dir:
+      type: string
+      description: Specifying this parameters, appends the string to the path for the standard output directory provided by `$out_dir`.
+      default: FLASH (see out_dir)
+  - publish_dir_mode:
+      type: string
+      description: Provide a value for the Nextflow `publishDir` mode parameter (e.g. copy, link, ...)
+  - publish_results:
+      type: string
+      description: Whether or not to publish results into `publish_dir`. Set to `none` to not publish any files at all; to `default` to publish all relevant files.
+      default: set to 'default', i.e. publishes all relevant files.
+  - options:
+      type: map
+      description: this is a groovy map [:] which can be used to pass arguments for the software in use. it is processes by default function in nf-core module template
+
+### Expected Inputs
+
+  - meta:
+      type: map
+      description: The value is passed in a tuple, with the reads. This is a groovy map containing sample metadata which is generated in the main script.
+      The following fields are expected by the module:
+      - sampleID:
+        type: string
+        description: Sample identifier
+  - reads:
+      type: file
+      description: The list is passed in a tuple with the sample metadata (meta). List of input FastQ files of size 1 and 2 for single-end and paired-end data, respectively.
+
+### Expected output
+
+  - reads:
+      type: file
+      description: Single fastq file with merged reads, output from flash.
+      pattern: "*_fastqc.gz"
+
+  - version:
+      type: file
+      description: software version
+      pattern: "*.version.txt"

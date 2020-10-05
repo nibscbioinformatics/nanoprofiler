@@ -1,0 +1,8 @@
+# To create a conda environment for this module:
+# conda env create -f environment.yml
+name: nibscbioinformatics-modules-flash
+channels:
+  - bioconda
+  - defaults
+dependencies:
+  - bioconda::flash==1.2.11

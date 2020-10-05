@@ -240,12 +240,25 @@ workflow {
 
   CDHIT(NANOTRANSLATE.out.fasta, nulloptions)
 
-  //CDHIT.out.clusters
 
+  // this process needs to access CD-HIT summary file
+  // which has extension .clstr
   READCDHIT(CDHIT.out.clusters, nulloptions)
 
-  GETCDR3(CDHIT.out.clusters, nulloptions)
+  // this process needs to access the other output of cd-hit
+  // which are the raw sequences for the clusters, with
+  // extension .clusters
+  GETCDR3(CDHIT.out.clusterseq, nulloptions)
   //GETCDR3.out.fasta
+
+  def Map mafftoptions = [:]
+  mafftoptions.args = "--retree 0 --treeout --localpair --reorder"
+  mafftoptions.args2 = ''
+
+  MAFFT(GETCDR3.out.fasta, mafftoptions)
+
+  //MAFFT.out.tree
+  //MAFFT.out.fasta
 
 
 }

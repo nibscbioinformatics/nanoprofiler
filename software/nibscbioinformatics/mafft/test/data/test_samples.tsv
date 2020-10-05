@@ -1,0 +1,3 @@
+sampleID	read1
+test1	https://raw.githubusercontent.com/nibscbioinformatics/testdata/master/nanobodies/test01_cdr3.fasta
+test2	https://raw.githubusercontent.com/nibscbioinformatics/testdata/master/nanobodies/test02_cdr3.fasta

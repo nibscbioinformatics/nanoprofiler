@@ -1,0 +1,9 @@
+# To create a conda environment for this module:
+# conda env create -f environment.yml
+name: nibscbioinformatics-modules-cdhit
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - bioconda::cd-hit==4.8.1

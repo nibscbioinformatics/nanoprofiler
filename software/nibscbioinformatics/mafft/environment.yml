@@ -1,0 +1,9 @@
+# To create a conda environment for this module:
+# conda env create -f environment.yml
+name: nibscbioinformatics-modules-mafft
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - bioconda::mafft==7.471
