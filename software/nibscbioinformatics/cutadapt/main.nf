@@ -61,10 +61,10 @@ process CUTADAPT {
     """
     cutadapt \
     -j ${task.cpus} \
-    -a file:${options.adapterfile3} \
-    -A file:${options.adapterfile3} \
-    -g file:${options.adapterfile5} \
-    -G file:${options.adapterfile5} \
+    -a file:${adapterfile} \
+    -A file:${adapterfile} \
+    -g file:${adapterfile} \
+    -G file:${adapterfile} \
     -o ${meta.sampleID}_R1_trimmed.fastq.gz \
     -p ${meta.sampleID}_R2_trimmed.fastq.gz \
     ${reads[0]} ${reads[1]} \
