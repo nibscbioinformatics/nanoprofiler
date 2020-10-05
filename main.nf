@@ -228,8 +228,8 @@ workflow {
   def Map cutoptions = [:]
   cutoptions.args = "-q ${params.trim_quality} --minimum-length ${params.trim_minlength} --times ${params.trim_adaptertimes} -e ${params.trim_maxerror} --max-n ${params.trim_maxn}"
   cutoptions.args2 = "-q ${params.trim_quality},${params.trim_quality} --minimum-length ${params.trim_minlength} --times ${params.trim_adaptertimes} -e ${params.trim_maxerror} --max-n ${params.trim_maxn}"
-  cutoptions.adapterfile3 = params.adapterfile
-  cutoptions.adapterfile5 = params.adapterfile
+  cutoptions.adapterfile3 = file(params.adapterfile)
+  cutoptions.adapterfile5 = file(params.adapterfile)
 
   CUTADAPT(inputSample, cutoptions)
 
