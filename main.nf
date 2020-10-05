@@ -28,11 +28,17 @@ params.flash_max_overlap = 300
 ### INCLUDE MODULES SECTION ###############
 ==============================================*/
 
+// general use modules 
 include { CUTADAPT } from './software/nibscbioinformatics/cutadapt' params(params)
 include { FLASH } from './software/nibscbioinformatics/flash' params(params)
-include { RENAME } from './softwre/local/rename' params(params)
-include { NANOTRANSLATE } from './softwre/local/nanotranslate' params(params)
 include { CDHIT } from './software/nibscbioinformatics/cdhit' params(params)
+include { MAFFT } from './software/nibscbioinformatics/mafft' params(params)
+
+// local use modules
+include { RENAME } from './software/local/rename' params(params)
+include { NANOTRANSLATE } from './software/local/nanotranslate' params(params)
+include { READCDHIT } from './software/local/readcdhit' params(params)
+include { GETCDR3 } from './software/local/getcdr3' params(params)
 
 
 
@@ -48,16 +54,13 @@ def helpMessage() {
     nextflow run nibscbioinformatics/nanoprofiler --reads '*_R{1,2}.fastq.gz' -profile docker
 
     Mandatory arguments:
-      --reads [file]                Path to input data (must be surrounded with quotes)
+      --input [file]                Path to TSV file with metadata and location of reads
       -profile [str]                Configuration profile to use. Can use multiple (comma separated)
                                     Available: conda, docker, singularity, test, awsbatch, <institute> and more
 
     Options:
       --genome [str]                  Name of iGenomes reference
       --single_end [bool]             Specifies that the input is single-end reads
-
-    References                        If not specified in the configuration file or you wish to overwrite any of the references
-      --fasta [file]                  Path to fasta reference
 
     Other options:
       --outdir [file]                 The output directory where the results will be saved
@@ -211,6 +214,7 @@ workflow {
   inputSample = readInputFile(params.input, params.single_end)
 
   GETVERSIONS()
+  OUTDOCS(ch_output_docss)
   
 
   def Map cutoptions = [:]
