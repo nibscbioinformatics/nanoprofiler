@@ -228,10 +228,8 @@ workflow {
   def Map cutoptions = [:]
   cutoptions.args = "-q ${params.trim_quality} --minimum-length ${params.trim_minlength} --times ${params.trim_adaptertimes} -e ${params.trim_maxerror} --max-n ${params.trim_maxn}"
   cutoptions.args2 = "-q ${params.trim_quality},${params.trim_quality} --minimum-length ${params.trim_minlength} --times ${params.trim_adaptertimes} -e ${params.trim_maxerror} --max-n ${params.trim_maxn}"
-  cutoptions.adapterfile3 = adapter
-  cutoptions.adapterfile5 = adapter
 
-  CUTADAPT(inputSample, cutoptions)
+  CUTADAPT(inputSample, adapter, cutoptions)
 
   def Map flashoptions = [:]
   flashoptions.args = "--max-overlap ${params.flash_max_overlap}"
