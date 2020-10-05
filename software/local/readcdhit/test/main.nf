@@ -25,7 +25,7 @@ workflow {
   // so a test should always been implemented to check
   // the output corresponds to what expected
 
-  GETCDR3.out.fasta.map { map, summary ->
+  GETCDR3.out.summary.map { map, summary ->
 
     assert summary.exists()
     assert summary.getExtension() == "summary"
