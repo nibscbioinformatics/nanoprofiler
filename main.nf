@@ -166,6 +166,7 @@ Channel.from(summary.collect{ [it.key, it.value] })
 
 /*
  * Parse software version numbers
+    THIS WILL HAVE TO CHANGE TO COLLECT ALL VERSIONS FROM MODULES
  */
 process GETVERSIONS {
     publishDir "${params.outdir}/pipeline_info", mode: 'copy',
@@ -220,7 +221,7 @@ workflow {
   inputSample = Channel.empty()
   inputSample = readInputFile(params.input, params.single_end)
 
-  GETVERSIONS()
+  //GETVERSIONS()
   OUTDOCS(ch_output_docs)
   
 
