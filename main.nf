@@ -118,8 +118,7 @@ def summary = [:]
 if (workflow.revision) summary['Pipeline Release'] = workflow.revision
 summary['Run Name']         = custom_runName ?: workflow.runName
 // TODO nf-core: Report custom parameters here
-summary['Reads']            = params.reads
-summary['Fasta Ref']        = params.fasta
+summary['TSV file']         = params.input
 summary['Data Type']        = params.single_end ? 'Single-End' : 'Paired-End'
 summary['Max Resources']    = "$params.max_memory memory, $params.max_cpus cpus, $params.max_time time per job"
 if (workflow.containerEngine) summary['Container'] = "$workflow.containerEngine - $workflow.container"
@@ -218,8 +217,9 @@ process OUTDOCS {
 
 
 workflow {
+  input = file(params.input)
   inputSample = Channel.empty()
-  inputSample = readInputFile(params.input, params.single_end)
+  inputSample = readInputFile(input, params.single_end)
 
   //GETVERSIONS()
   //OUTDOCS(ch_output_docs)
