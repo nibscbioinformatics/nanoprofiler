@@ -172,8 +172,8 @@ process GETVERSIONS {
                 }
 
     output:
-    file('software_versions_mqc.yaml'), emit: ch_software_versions_yaml
-    file("software_versions.csv"), emit: versions
+    file('software_versions_mqc.yaml') emit: ch_software_versions_yaml
+    file("software_versions.csv") emit: versions
 
     script:
     // TODO nf-core: Get all tools to print their version number here
