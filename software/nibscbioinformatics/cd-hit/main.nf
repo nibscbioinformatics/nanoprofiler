@@ -16,7 +16,7 @@ process CDHIT {
           saveFiles(filename:filename, options:options, publish_dir:getSoftwareName(task.process), publish_id:meta.sampleID)
         }
 
-    container "biocontainers/cd-hit:v4.6.8-2-deb_cv1"
+    container "quay.io/biocontainers/cd-hit:4.8.1--h8b12597_3s"
 
     conda (params.conda ? "${moduleDir}/environment.yml" : null)
 
