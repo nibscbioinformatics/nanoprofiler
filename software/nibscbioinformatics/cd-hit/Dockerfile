@@ -13,3 +13,4 @@ RUN conda env create -f /environment.yml && conda clean -a
 # TODO ->>> change the path here indicated by "xxx" [/envs/]xxxx[/bin:$PATH] with the very same name
 # given into the environment.yml file
 ENV PATH /usr/local/envs/nibscbioinformatics-modules-cdhit/bin:$PATH
+
