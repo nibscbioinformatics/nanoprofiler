@@ -1,6 +1,6 @@
 FROM conda/miniconda3
-LABEL authors="Francesco Lescai and Thomas Bleazard" \
-      description="Docker image containing all software requirements for the XXXX module"
+LABEL authors="Francesco Lescai" \
+      description="Docker image containing all software requirements for the cd-hit module"
 
 # Install procps so that Nextflow can poll CPU usage
 RUN apt-get update && apt-get install -y procps && apt-get clean -y

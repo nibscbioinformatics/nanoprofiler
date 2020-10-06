@@ -16,7 +16,7 @@ process CDHIT {
           saveFiles(filename:filename, options:options, publish_dir:getSoftwareName(task.process), publish_id:meta.sampleID)
         }
 
-    container "biocontainers/cd-hit:v4.6.8-2-deb_cv1"
+    container "ghcr.io/nibscbioinformatics/cd-hit:v4.8.1"
 
     conda (params.conda ? "${moduleDir}/environment.yml" : null)
 
