@@ -33,6 +33,7 @@ process CDHIT {
   output:
   tuple val(meta), path("*.clusters"), emit: clusterseq
   tuple val(meta), path("*.clstr"), emit: clusters
+  tuple val(meta), path("*.log"), emit: log
   path "*.version.txt", emit: version
 
   script:
@@ -42,7 +43,8 @@ process CDHIT {
   -o ${meta.sampleID}.aa.clusters \
   ${options.args} \
   -T ${task.cpus} \
-  -M ${task.memory.toMega()}
+  -M ${task.memory.toMega()} \
+  >${meta.sampleID}_cdhit.log 2>&1
 
   cd-hit -h | head -n1 | cut -d" " -f4,5,6,7,8,9 >cd-hit.version.txt
   """
