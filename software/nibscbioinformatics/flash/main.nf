@@ -29,6 +29,7 @@ process FLASH {
 
   output:
   tuple val(meta), path("${meta.sampleID}.extendedFrags.fastq.gz"), emit: reads
+  tuple val(meta), path("${meta.sampleID}.hist"), emit: histogram
   path "*.version.txt", emit: version
 
   script:
