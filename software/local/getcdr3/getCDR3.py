@@ -47,6 +47,7 @@ for line in filein:
     startaa = sequence.find(preseq) + 3
     endaa = sequence.find(postseq)
     if startaa == -1 or endaa == -1:
+      tsvfile.write(identifier + "\t" + "NA" + "\t" + line.rstrip() + "\tnon-unique\n")
       continue
     targetbit = line.rstrip()[startaa:endaa]
     if targetbit in bigset or len(targetbit) > 50 or len(targetbit) < 1:
