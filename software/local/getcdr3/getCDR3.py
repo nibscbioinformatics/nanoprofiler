@@ -50,12 +50,12 @@ for line in filein:
       continue
     targetbit = line.rstrip()[startaa:endaa]
     if targetbit in bigset or len(targetbit) > 50 or len(targetbit) < 1:
-      tsvfile.write(identifier + "\t" + targetbit + "\t" + sequence + "\tnon-unique\n")
+      tsvfile.write(identifier + "\t" + targetbit + "\t" + line.rstrip() + "\tnon-unique\n")
       continue
     bigset.add(targetbit)
     fileout.write(fastaheader + "\n")
     fileout.write(targetbit + "\n")
-    tsvfile.write(identifier + "\t" + targetbit + "\t" + sequence + "\tnon-unique\n")
+    tsvfile.write(identifier + "\t" + targetbit + "\t" + line.rstrip() + "\tnon-unique\n")
 
 filein.close()
 fileout.close()
