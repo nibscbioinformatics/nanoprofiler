@@ -33,7 +33,7 @@ fileout = open(args.cdr, "w")
 tsvfile = open(args.tsv, "w")
 histo = open(args.hist, "w")
 
-tsvfile.write("ID\tCDR3\tunique\n")
+tsvfile.write("ID\tCDR3\tsequence\tunique\n")
 
 linecount = 0
 for line in filein:
@@ -50,12 +50,12 @@ for line in filein:
       continue
     targetbit = line.rstrip()[startaa:endaa]
     if targetbit in bigset or len(targetbit) > 50 or len(targetbit) < 1:
-      tsvfile.write(identifier + "\t" + targetbit + "\t" + "non-unique\n")
+      tsvfile.write(identifier + "\t" + targetbit + "\t" + sequence + "\tnon-unique\n")
       continue
     bigset.add(targetbit)
     fileout.write(fastaheader + "\n")
     fileout.write(targetbit + "\n")
-    tsvfile.write(identifier + "\t" + targetbit + "\t" + "non-unique\n")
+    tsvfile.write(identifier + "\t" + targetbit + "\t" + sequence + "\tnon-unique\n")
 
 filein.close()
 fileout.close()
