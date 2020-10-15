@@ -47,7 +47,7 @@ for line in filein:
     startaa = sequence.find(preseq) + 3
     endaa = sequence.find(postseq)
     if startaa == -1 or endaa == -1:
-      tsvfile.write(identifier + "\t" + "NA" + "\t" + line.rstrip() + "\tnon-unique\n")
+      tsvfile.write(identifier + "\t" + "NA" + "\t" + line.rstrip() + "\tno-cdr3\n")
       continue
     targetbit = line.rstrip()[startaa:endaa]
     if targetbit in bigset or len(targetbit) > 50 or len(targetbit) < 1:
@@ -56,7 +56,7 @@ for line in filein:
     bigset.add(targetbit)
     fileout.write(fastaheader + "\n")
     fileout.write(targetbit + "\n")
-    tsvfile.write(identifier + "\t" + targetbit + "\t" + line.rstrip() + "\tnon-unique\n")
+    tsvfile.write(identifier + "\t" + targetbit + "\t" + line.rstrip() + "\tunique\n")
 
 filein.close()
 fileout.close()
