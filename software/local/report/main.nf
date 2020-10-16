@@ -71,6 +71,5 @@ process REPORT {
       ),
     knit_root_dir=workdir,
     output_dir=workdir)"
-
   """"
 }
