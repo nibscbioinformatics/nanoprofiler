@@ -24,6 +24,7 @@ library(ggplot2)
 library(tidyverse)
 library(kableExtra)
 library(ggtree)
+library(Biostrings)
 opts_chunk$set(message=FALSE, error=FALSE, warning=FALSE, tidy=TRUE, tidy.opts=list(blank=FALSE), cache=TRUE, cache.lazy = FALSE, echo = FALSE,  results = 'asis', fig.pos='H', fig.wide=TRUE)
 ```
 
