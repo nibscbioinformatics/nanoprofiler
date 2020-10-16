@@ -38,7 +38,7 @@ process GETCDR3 {
   tuple val(meta), path("*.tsv"), emit: tsv
   path '*.hist', emit: histonly
   path '*.tsv', emit: tsvonly
-  val(meta), emit: metaonly
+  val meta, emit: metaonly
 
   script:
   """
