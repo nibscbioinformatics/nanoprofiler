@@ -48,7 +48,7 @@ process REPORT {
     script:
     
     // write this on a file R can read
-    sampleData = file("sampledata.tsv")
+    def sampleData = new File("sampledata.tsv")
     sampleData.append("ID\timmunisation\tboost\n")
 
     // now need to map them in order to gather the files
