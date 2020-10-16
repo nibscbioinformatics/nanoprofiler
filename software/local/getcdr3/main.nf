@@ -36,8 +36,8 @@ process GETCDR3 {
   tuple val(meta), path("*.fasta"), emit: fasta
   tuple val(meta), path("*.hist"), emit: hist
   tuple val(meta), path("*.tsv"), emit: tsv
-  path("*.hist"), emit: histonly
-  path("*.tsv"), emit: tsvonly
+  path '*.hist', emit: histonly
+  path '*.tsv', emit: tsvonly
   val(meta), emit: metaonly
 
   script:

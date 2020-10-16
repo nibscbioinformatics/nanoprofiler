@@ -36,7 +36,7 @@ process READCDHIT {
 
   output:
   tuple val(meta), path("*.summary"), emit: summary
-  path("*.summary"), emit: summaryonly
+  path '*.summary', emit: summaryonly
 
   script:
   """
