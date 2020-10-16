@@ -41,9 +41,9 @@ process REPORT {
   val options
 
   output:
-  path("*.RData"), emit: rdata
-  path("*.html"), emit: report
-  path("cdr3_boost_overview_table.tsv"), emit: results
+  path "*.RData", emit: rdata
+  path "*.html", emit: report
+  path "cdr3_boost_overview_table.tsv", emit: results
 
   script:
   // write this on a file R can read
