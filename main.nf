@@ -271,22 +271,13 @@ workflow {
   //MAFFT.out.tree
   //MAFFT.out.fasta
 
-  /* prepare to collate outputs of previous processes
-  READCDHIT.out.summaryonly.collect()
-  GETCDR3.out.histonly.collect()
-  GETCDR3.out.tsvonly.collect()
-  GETCDR3.out.metaonly.collect()
-  plus need metadata
+  
   REPORT(
       READCDHIT.out.summaryonly.collect(),
       GETCDR3.out.histonly.collect(),
       GETCDR3.out.tsvonly.collect(),
       GETCDR3.out.metaonly.collect()
   )
-
-  
-
-  */
 
 }
 

@@ -18,8 +18,10 @@ process REPORT {
         }
 
 
-    container "quay.io/biocontainers/fastx_toolkit:0.0.14--he1b5a44_8" 
+    container "ghcr.io/nibscbioinformatics/nibscreporting:v1.00" 
 
+    // conda for the moment cannot work because not all R packages can be installed
+    // with conda recipes
     conda (params.conda ? "${moduleDir}/environment.yml" : null)
 
   /* this process is supposed to receive a collect of files-only

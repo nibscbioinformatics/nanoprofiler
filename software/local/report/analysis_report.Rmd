@@ -22,7 +22,6 @@ params:
 library(knitr)
 library(ggplot2)
 library(tidyverse)
-library(stringr)
 library(kableExtra)
 library(ggtree)
 library(Biostrings)
