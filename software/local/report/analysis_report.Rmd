@@ -1,14 +1,14 @@
 ---
 title: "Nanobodies Sequencing Analysis"
-author: "Francesco Lescai and Thomas Bleazard"
+author: 
+  - name: "Francesco Lescai"
+    affiliation: "NIBSC"
+    email: "francesco.lescai@nibsc.org"
+  - name: "Thomas Bleazard"
+    affiliation: "NIBSC"
+    email: "thomas.bleazard@nibsc.org"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output:
-  html_document:
-    theme: readable
-    highlight: tango
-    toc: true
-    toc_float: true
-    css: nibsc_report.css
+output: nibscdoc::report_html
 editor_options:
   chunk_output_type: console
 params:
