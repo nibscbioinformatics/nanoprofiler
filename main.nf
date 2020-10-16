@@ -271,6 +271,22 @@ workflow {
   //MAFFT.out.tree
   //MAFFT.out.fasta
 
+  /* prepare to collate outputs of previous processes
+  READCDHIT.out.summaryonly.collect()
+  GETCDR3.out.histonly.collect()
+  GETCDR3.out.tsvonly.collect()
+  GETCDR3.out.metaonly.collect()
+  plus need metadata
+  REPORT(
+      READCDHIT.out.summaryonly.collect(),
+      GETCDR3.out.histonly.collect(),
+      GETCDR3.out.tsvonly.collect(),
+      GETCDR3.out.metaonly.collect()
+  )
+
+  
+
+  */
 
 }
 
@@ -471,6 +487,12 @@ def readInputFile(tsvFile, single_end) {
             def reads = []
             def sampleinfo = []
             meta.sampleID = row.sampleID
+            if (row.immunisation) {
+                meta.immunisation = row.immunisation
+            }
+            if (row.boost) {
+                meta.boost = row.boost
+            }
             if (single_end) {
               reads = checkFile(row.read1, "fastq.gz")
             } else {

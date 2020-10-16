@@ -12,14 +12,13 @@ output:
 editor_options:
   chunk_output_type: console
 params:
-  vcf: NULL
-  callers: NULL
-  samples: NULL
-  genome: NULL
-  genemodel: NULL
+  clusterList: NULL
+  histoList: NULL
+  tableList: NULL
+  sampleData: NULL
 ---
 
-```{r, echo=FALSE, message=FALSE, error=FALSE, warning=FALSE}
+```{R, echo=FALSE, message=FALSE, error=FALSE, warning=FALSE}
 library(knitr)
 library(ggplot2)
 library(tidyverse)
@@ -28,6 +27,13 @@ library(kableExtra)
 library(ggtree)
 library(Biostrings)
 opts_chunk$set(message=FALSE, error=FALSE, warning=FALSE, tidy=TRUE, tidy.opts=list(blank=FALSE), cache=TRUE, cache.lazy = FALSE, echo = FALSE,  results = 'asis', fig.pos='H', fig.wide=TRUE)
+```
+
+```{R dataprep}
+clusterfiles <- strsplit(params$clusterList, ",")
+histofiles <- strsplit(params$histoList, ",")
+tablefiles <- strsplit(params$tableList, ",")
+sampleMetaData <- read_tsv(params$sampleData)
 ```
 
 
@@ -46,9 +52,9 @@ We review the distribution of members of clusters and their sequence identity to
 
 ```{R clustermembership}
 clusterbig <- data.frame()
-for (file in dir("results/readcdhit/")) {
+for (file in clusterfiles) {
   samplename <- gsub("_clusters.summary", "", file)
-  clusterdata <- read.csv(file=paste0("results/readcdhit/", file), header=TRUE)
+  clusterdata <- read.csv(file, header=TRUE)
   clusterdata$Sample <- rep(samplename, times=nrow(clusterdata))
   clusterbig <- rbind(clusterbig, clusterdata)
   rm(clusterdata)
@@ -56,7 +62,7 @@ for (file in dir("results/readcdhit/")) {
 ```
 
 
-```{R plot1}
+```{R clusterSizePlot}
 ggplot(data=clusterbig) +
     geom_histogram(aes(x=Count)) +
     scale_x_continuous(limits = c(0, 500)) +
@@ -67,7 +73,7 @@ ggplot(data=clusterbig) +
 ```
 
 
-```{R}
+```{R clusterMembersPlot}
 ggplot(data=clusterbig) +
     geom_point(aes(x=Count, y=Identity), position="jitter") +
     xlab("Number of Cluster Members") +
@@ -79,14 +85,13 @@ ggplot(data=clusterbig) +
 
 We summarise cluster counts based on the number of member sequences.
 
-```{R clustercounts}
+```{R clustercountsTable}
 clusterbig$five <- clusterbig$Count >=5
 clusterbig$hundred <- clusterbig$Count >= 100
 clusterbig$thousand <- clusterbig$Count >= 1000
 clustercounts <- clusterbig %>%
   group_by(Sample) %>%
   summarize(Clusters = n(), Clusters_of_5 = sum(five), Clusters_of_100 = sum(hundred), Clusters_of_1000 = sum(thousand))
-clustercounts$Input_Sequences <- c(464557,591123,616207,529853,668385) #Manually taken from log
 kable(clustercounts) %>%
   kable_styling()
 ```
@@ -106,9 +111,9 @@ Note that this approach is not robust to amino acid sequences which do not follo
 
 ```{R cdrhistogram}
 cdrhists <- data.frame()
-for (file in dir("results/getcdr3/", pattern = ".hist")) {
+for (file in histofiles) {
   samplename <- gsub("_cdr3.hist", "", file)
-  histdata <- read.csv(file=paste0("results/getcdr3/", file), header=TRUE)
+  histdata <- read.csv(file, header=TRUE)
   histdata$Sample <- rep(samplename, times=nrow(histdata))
   cdrhists <- rbind(cdrhists, histdata)
 }
@@ -140,9 +145,9 @@ ggplot(data=cdrhists) +
 
 ```{r fastaRep}
 fastaSeq <- data.frame()
-for (fasta in dir("results/getcdr3/", pattern = ".tsv")){
+for (fasta in tablefiles){
   sample <- gsub("_cdr3.tsv", "", fasta)
-  seqs <- read_tsv(paste0("results/getcdr3/", fasta))
+  seqs <- read_tsv(fasta)
   fastaSeq <- rbind(
     fastaSeq,
     cbind(seqs,
@@ -165,27 +170,17 @@ boostEvol <- clusterbig %>%
 temporarily taken from merged dataset, otherwise would be loaded from file.
 
 ```{r sampleMetaData}
-metadata <- data.frame(
-  sample = boostEvol$Sample,
-  boost = sub("^.{2}-(.+)_.+$", "\\1", boostEvol$Sample)
-)
-
-boostEvol$boost <- sub("^.{2}-(.+)_.+$", "\\1", boostEvol$Sample)
+boostEvol <- boostEvol %>%
+  left_join(sampleMetaData,
+      by = c("Sample" = "ID")
+    )
+write_tsv(boostEvol, "cdr3_boost_overview_table.tsv")
 ```
 
 
-
-
-```{r cdr3evolve}
-evolutionPDL <- boostEvol %>%
-  filter(unique == "unique") %>%
-  select(CDR3, Sample, Count) %>%
-  filter(grepl("L1", Sample)) %>%
-  spread(Sample, Count) %>%
-  mutate(sum = sum(c_across(where(is.numeric)))) %>%
-  filter(!is.na(sum))
+```{R saveImage}
+save.image("nanobodies_report.RData")
 ```
-
 
 
 
@@ -193,7 +188,7 @@ evolutionPDL <- boostEvol %>%
 # Additional QC
 
 
-```{r viewlengthdist}
+```{r viewlengthdist, eval=FALSE}
 for (samplename in c("317-D1-Bst3_S1","317-D1-Bst4_S2","317-L1-Bst2_S3","317-L1-Bst3_S4","317-L1-Bst4_S5")) {
   lengthfreqs <- read.csv(file=paste0(samplename, "_L001.hist"), sep="\t", header=FALSE)
   colnames(lengthfreqs) <- c("sequence_length", "count")
