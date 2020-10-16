@@ -42,6 +42,7 @@ include { RENAME } from './software/local/rename/main.nf' params(params)
 include { NANOTRANSLATE } from './software/local/nanotranslate/main.nf' params(params)
 include { READCDHIT } from './software/local/readcdhit/main.nf' params(params)
 include { GETCDR3 } from './software/local/getcdr3/main.nf' params(params)
+include { REPORT } from './software/local/report/main.nf' params(params)
 
 
 
