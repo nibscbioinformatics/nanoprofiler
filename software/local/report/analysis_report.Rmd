@@ -18,7 +18,7 @@ params:
   sampleData: NULL
 ---
 
-```{R, echo=FALSE, message=FALSE, error=FALSE, warning=FALSE}
+```{R, echo=FALSE}
 library(knitr)
 library(ggplot2)
 library(tidyverse)
