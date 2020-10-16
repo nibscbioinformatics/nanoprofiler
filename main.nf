@@ -277,7 +277,8 @@ workflow {
       READCDHIT.out.summaryonly.collect(),
       GETCDR3.out.histonly.collect(),
       GETCDR3.out.tsvonly.collect(),
-      GETCDR3.out.metaonly.collect()
+      GETCDR3.out.metaonly.collect(),
+      nulloptions
   )
 
 }
