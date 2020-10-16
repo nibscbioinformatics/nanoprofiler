@@ -36,7 +36,7 @@ process REPORT {
     path(clustersummaries)
     path(cdr3histograms)
     path(cdr3tables)
-    path(metadata)
+    val(metadata)
     val options
 
     output:
