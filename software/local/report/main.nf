@@ -16,7 +16,7 @@ process REPORT {
     publishDir "${params.outdir}",
         mode: params.publish_dir_mode,
         saveAs: { filename ->
-          saveFiles(filename:filename, options:options, publish_dir:getSoftwareName(task.process), publish_id:meta.sampleID)
+          saveFiles(filename:filename, options:options, publish_dir:getSoftwareName(task.process), publish_id:'')
         }
     
     container "ghcr.io/nibscbioinformatics/nibscreporting:v1.00" 
