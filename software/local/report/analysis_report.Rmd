@@ -18,7 +18,7 @@ params:
   sampleData: NULL
 ---
 
-```{R, echo=FALSE}
+```{R, echo=FALSE, message=FALSE, error=FALSE, warning=FALSE}
 library(knitr)
 library(ggplot2)
 library(tidyverse)
@@ -53,7 +53,7 @@ We review the distribution of members of clusters and their sequence identity to
 clusterbig <- data.frame()
 for (file in clusterfiles) {
   samplename <- gsub("_clusters.summary", "", file)
-  clusterdata <- read.csv(file, header=TRUE)
+  clusterdata <- read_csv(file)
   clusterdata$Sample <- rep(samplename, times=nrow(clusterdata))
   clusterbig <- rbind(clusterbig, clusterdata)
   rm(clusterdata)
