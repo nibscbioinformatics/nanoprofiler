@@ -54,7 +54,7 @@ clusterbig <- data.frame()
 for (file in clusterfiles) {
   samplename <- gsub("_clusters.summary", "", file)
   clusterdata <- read_csv(file)
-  clusterdata$Sample <- rep(samplename, times=nrow(clusterdata))
+  clusterdata$Sample <- samplename
   clusterbig <- rbind(clusterbig, clusterdata)
   rm(clusterdata)
 }
