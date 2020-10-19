@@ -49,7 +49,7 @@ process REPORT {
     script:
     
     // write this on a file R can read
-    def sampleData = new File("${workDir}/assets/sampledata.tsv")
+    def sampleData = new File("${workDir}/sampledata.tsv")
     sampleData.append("ID\timmunisation\tboost\n")
 
     // now need to map them in order to gather the files
@@ -62,7 +62,7 @@ process REPORT {
 
     """
     ln -s $moduleDir/nibsc_report.css .
-    ln -s ${workDir}/assets/sampledata.tsv .
+    ln -s ${workDir}/sampledata.tsv .
 
     Rscript -e "workdir<-getwd()
         rmarkdown::render('$moduleDir/analysis_report.Rmd',
