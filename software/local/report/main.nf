@@ -73,6 +73,7 @@ process REPORT {
         sampleData = \\\"sampledata.tsv\\\"
         ),
         knit_root_dir=workdir,
+        intermediates_dir=workdir,
         output_dir=workdir)"
     """
 
