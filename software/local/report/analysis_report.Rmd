@@ -29,9 +29,9 @@ opts_chunk$set(message=FALSE, error=FALSE, warning=FALSE, tidy=TRUE, tidy.opts=l
 ```
 
 ```{R dataprep}
-clusterfiles <- strsplit(params$clusterList, ",")
-histofiles <- strsplit(params$histoList, ",")
-tablefiles <- strsplit(params$tableList, ",")
+clusterfiles <- unlist(strsplit(params$clusterList, ","))
+histofiles <- unlist(strsplit(params$histoList, ","))
+tablefiles <- unlist(strsplit(params$tableList, ","))
 sampleMetaData <- read_tsv(params$sampleData)
 ```
 
