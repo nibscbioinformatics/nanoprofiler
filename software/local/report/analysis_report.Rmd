@@ -53,7 +53,9 @@ We review the distribution of members of clusters and their sequence identity to
 clusterbig <- data.frame()
 for (file in clusterfiles) {
   samplename <- gsub("_clusters.summary", "", file)
+  writeLines(paste0("-------> received sample name as = ", samplename))
   clusterdata <- read_csv(file)
+  head(clusterdata)
   clusterdata$Sample <- samplename
   clusterbig <- rbind(clusterbig, clusterdata)
   rm(clusterdata)
