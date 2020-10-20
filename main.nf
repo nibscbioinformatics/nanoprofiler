@@ -244,6 +244,7 @@ process MULTIQC {
     path (multiqc_config)
     path ('fastqc/*')
     path ('cutadapt/*')
+    val options
 
     output:
     path "*multiqc_report.html", emit: report
@@ -323,7 +324,8 @@ workflow {
   MULTIQC(
       ch_multiqc_config,
       FASTQC.out.htmlonly.collect(),
-      CUTADAPT.out.logsonly.collect()
+      CUTADAPT.out.logsonly.collect(),
+      nulloptions
   )
 
   
