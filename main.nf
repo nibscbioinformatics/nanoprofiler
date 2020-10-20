@@ -37,6 +37,9 @@ include { FLASH } from './software/nibscbioinformatics/flash/main.nf' params(par
 include { CDHIT } from './software/nibscbioinformatics/cd-hit/main.nf' params(params)
 include { MAFFT } from './software/nibscbioinformatics/mafft/main.nf' params(params)
 
+// nf-core modules
+include { FASTQC } from './software/nf-core/fastqc/main.nf' params(params)
+
 // local use modules
 include { RENAME } from './software/local/rename/main.nf' params(params)
 include { NANOTRANSLATE } from './software/local/nanotranslate/main.nf' params(params)
@@ -108,7 +111,6 @@ if (workflow.profile.contains('awsbatch')) {
 
 // Stage config files
 ch_multiqc_config = file("$baseDir/assets/multiqc_config.yaml", checkIfExists: true)
-ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config, checkIfExists: true) : Channel.empty()
 ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
 
 
@@ -216,6 +218,48 @@ process OUTDOCS {
     """
 }
 
+// multi-qc is deprecated in nf-core modules
+// therefore we design a custom module here for this pipeline
+// which might not be suitable for general use
+
+process MultiQC {
+    
+    label 'process_low'
+
+    publishDir "${params.outdir}",
+        mode: params.publish_dir_mode,
+        
+        saveAs: { filename ->
+          saveFiles(filename:filename, options:options, publish_dir:getSoftwareName(task.process), publish_id:'')
+        }
+
+
+    container "quay.io/biocontainers/multiqc:1.9--pyh9f0ad1d_0"
+
+    conda (params.conda ? "bioconda::multiqc=1.9" : null)
+
+    input:
+    path (multiqc_config)
+    path ('fastqc/*')
+    path ('cutadapt/*')
+
+    output:
+    path "*multiqc_report.html", emit: report
+    path "*_data", emit: data
+    path "multiqc_plots", emit: plots
+
+    script:
+    rtitle = custom_runName ? "--title \"$custom_runName\"" : ''
+    rfilename = custom_runName ? "--filename " + custom_runName.replaceAll('\\W','_').replaceAll('_+','_') + "_multiqc_report" : ''
+    custom_config_file = "--config ${multiqc_config}"
+
+    """
+    export LC_ALL=C.UTF-8
+    export LANG=C.UTF-8
+    multiqc -f $rtitle $rfilename $custom_config_file .
+    """
+}
+
 
 workflow {
   input = file(params.input)
@@ -224,6 +268,8 @@ workflow {
 
   //GETVERSIONS()
   //OUTDOCS(ch_output_docs)
+
+  FASTQC(inputSample)
   
   adapter = params.adapterfile ? Channel.value(file(params.adapterfile)) : "null"
   def Map cutoptions = [:]
@@ -271,6 +317,12 @@ workflow {
 
   //MAFFT.out.tree
   //MAFFT.out.fasta
+
+  MULTIQC(
+      ch_multiqc_config,
+      FASTQC.out.html.collect(),
+      CUTADAPT.out.logs.collect()
+  )
 
   
   REPORT(
