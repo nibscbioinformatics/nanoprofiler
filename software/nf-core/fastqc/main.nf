@@ -19,6 +19,7 @@ process FASTQC {
     
     output:
     tuple val(meta), path("*.html"), emit: html
+    path "*.html", emit: htmlonly
     tuple val(meta), path("*.zip") , emit: zip
     path  "*.version.txt"          , emit: version
 

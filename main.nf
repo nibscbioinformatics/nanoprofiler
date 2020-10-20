@@ -320,8 +320,8 @@ workflow {
 
   MULTIQC(
       ch_multiqc_config,
-      FASTQC.out.html.collect(),
-      CUTADAPT.out.logs.collect()
+      FASTQC.out.htmlonly.collect(),
+      CUTADAPT.out.logsonly.collect()
   )
 
   

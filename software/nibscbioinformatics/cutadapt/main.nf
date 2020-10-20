@@ -39,6 +39,7 @@ process CUTADAPT {
   output:
   tuple val(meta), path("*_trimmed.fastq.gz"), emit: reads
   tuple val(meta), path("*_trim.*"), emit: logs
+  path "*_trim.*", emit: logsonly
   path "*.version.txt", emit: version
 
   script:
