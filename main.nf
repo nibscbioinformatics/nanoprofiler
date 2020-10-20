@@ -47,6 +47,8 @@ include { READCDHIT } from './software/local/readcdhit/main.nf' params(params)
 include { GETCDR3 } from './software/local/getcdr3/main.nf' params(params)
 include { REPORT } from './software/local/report/main.nf' params(params)
 
+// Import generic functions for in-script modules
+include { initOptions; saveFiles; getSoftwareName } from './functions'
 
 
 def helpMessage() {
