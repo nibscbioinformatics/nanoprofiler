@@ -222,7 +222,7 @@ process OUTDOCS {
 // therefore we design a custom module here for this pipeline
 // which might not be suitable for general use
 
-process MultiQC {
+process MULTIQC {
     
     label 'process_low'
 

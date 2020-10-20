@@ -11,8 +11,8 @@ process FASTQC {
         mode: params.publish_dir_mode,
         saveAs: { filename -> saveFiles(filename:filename, options:params.options, publish_dir:getSoftwareName(task.process), publish_id:meta.sampleID) }
 
-    conda (params.enable_conda ? "bioconda::fastqc=0.11.9" : null)
-    if (workflow.containerEngine == 'singularity' && !params.pull_docker_container) {
+    conda (params.conda ? "bioconda::fastqc=0.11.9" : null)
+    if (workflow.containerEngine == 'singularity') {
         container "https://depot.galaxyproject.org/singularity/fastqc:0.11.9--0"
     } else {
         container "quay.io/biocontainers/fastqc:0.11.9--0"
