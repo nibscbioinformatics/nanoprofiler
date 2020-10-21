@@ -35,12 +35,17 @@ process GETCDR3 {
   output:
   tuple val(meta), path("*.fasta"), emit: fasta
   tuple val(meta), path("*.hist"), emit: hist
+  tuple val(meta), path("*.tsv"), emit: tsv
+  path '*.hist', emit: histonly
+  path '*.tsv', emit: tsvonly
+  val meta, emit: metaonly
 
   script:
   """
   python ${moduleDir}/getCDR3.py \
   -i ${translated} \
   -c ${meta.sampleID}_cdr3.fasta \
-  -o ${meta.sampleID}_cdr3.hist
+  -o ${meta.sampleID}_cdr3.hist \
+  -t ${meta.sampleID}_cdr3.tsv
   """
 }

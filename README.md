@@ -3,7 +3,6 @@
 **Analysis and reporing repertoire of nanobodies**.
 
 [![GitHub Actions CI Status](https://github.com/nibscbioinformatics/nanoprofiler/workflows/nf-core%20CI/badge.svg)](https://github.com/nibscbioinformatics/nanoprofiler/actions)
-[![GitHub Actions Linting Status](https://github.com/nibscbioinformatics/nanoprofiler/workflows/nf-core%20linting/badge.svg)](https://github.com/nibscbioinformatics/nanoprofiler/actions)
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A519.10.0-brightgreen.svg)](https://www.nextflow.io/)
 
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
@@ -29,10 +28,16 @@ nextflow run nibscbioinformatics/nanoprofiler -profile test,<docker/singularity/
 
 iv. Start running your own analysis!
 
-<!-- TODO nf-core: Update the default command above used to run the pipeline -->
+To run the pipeline within NIBSC infrastructure, use the following command
 
 ```bash
-nextflow run nibscbioinformatics/nanoprofiler -profile <docker/singularity/conda/institute> --reads '*_R{1,2}.fastq.gz' --genome GRCh37
+nextflow run nibscbioinformatics/nanoprofiler \
+[-r dev] \
+-profile nibsc \
+[-c additional_settings.config] \
+--input samples.tsv \
+--adapterfile adapters.fa \
+--single_end false
 ```
 
 See [usage docs](docs/usage.md) for all of the available options when running the pipeline.
@@ -50,11 +55,13 @@ The nibscbioinformatics/nanoprofiler pipeline comes with documentation about the
 4. [Output and how to interpret the results](docs/output.md)
 5. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
 
-<!-- TODO nf-core: Add a brief overview of what the pipeline does and how it works -->
+The pipeline is inspired to the work published by Deschaght et al (2017), and performs a repertoire analysis of nanobodies generated in immunised alpacas, and further selected by subsequent boosts.
+We cluster the nanobodies sequences using CD-HIT, and we extract and analyse their CDR3.
+Finally, we produce a minimal report and a table of cluster representative sequences and CDR3 by sample, immunisation and boost for further follow-up.
 
 ## Credits
 
-nibscbioinformatics/nanoprofiler was originally written by Francesco Lescai.
+nibscbioinformatics/nanoprofiler was originally written by Francesco Lescai, with in-house scripts contributed by Thomas Bleazard.
 
 ## Contributions and Support
 

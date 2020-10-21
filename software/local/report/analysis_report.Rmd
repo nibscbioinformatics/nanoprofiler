@@ -1,0 +1,205 @@
+---
+title: "Nanobodies Sequencing Analysis"
+author: 
+  - name: "Francesco Lescai"
+    affiliation: "NIBSC"
+    email: "francesco.lescai@nibsc.org"
+  - name: "Thomas Bleazard"
+    affiliation: "NIBSC"
+    email: "thomas.bleazard@nibsc.org"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: nibscdoc::report_html
+editor_options:
+  chunk_output_type: console
+params:
+  clusterList: NULL
+  histoList: NULL
+  tableList: NULL
+  sampleData: NULL
+---
+
+```{R, echo=FALSE, message=FALSE, error=FALSE, warning=FALSE}
+library(knitr)
+library(ggplot2)
+library(tidyverse)
+library(kableExtra)
+library(ggtree)
+library(Biostrings)
+opts_chunk$set(message=FALSE, error=FALSE, warning=FALSE, tidy=TRUE, tidy.opts=list(blank=FALSE), cache=TRUE, cache.lazy = FALSE, echo = FALSE,  results = 'asis', fig.pos='H', fig.wide=TRUE)
+```
+
+```{R dataprep}
+clusterfiles <- unlist(strsplit(params$clusterList, ","))
+histofiles <- unlist(strsplit(params$histoList, ","))
+tablefiles <- unlist(strsplit(params$tableList, ","))
+sampleMetaData <- read_tsv(params$sampleData)
+```
+
+
+# Introduction
+
+
+
+# Results 
+
+## Clusters
+
+
+We review the distribution of members of clusters and their sequence identity to the representative.
+
+
+
+```{R clustermembership}
+clusterbig <- data.frame()
+for (file in clusterfiles) {
+  samplename <- gsub("_clusters.summary", "", file)
+  writeLines(paste0("-------> received sample name as = ", samplename))
+  clusterdata <- read_csv(file)
+  head(clusterdata)
+  clusterdata$Sample <- samplename
+  clusterbig <- rbind(clusterbig, clusterdata)
+  rm(clusterdata)
+}
+```
+
+
+```{R clusterSizePlot}
+ggplot(data=clusterbig) +
+    geom_histogram(aes(x=Count)) +
+    scale_x_continuous(limits = c(0, 500)) +
+    scale_y_continuous(limits=c(0,5000)) +
+    xlab("Number of Cluster Members") +
+    ggtitle("Cluster Sizes")+
+  facet_wrap(~Sample)
+```
+
+
+```{R clusterMembersPlot}
+ggplot(data=clusterbig) +
+    geom_point(aes(x=Count, y=Identity), position="jitter") +
+    xlab("Number of Cluster Members") +
+    ylab("Average Sequence Identity\nto Cluster Representative")+
+  facet_wrap(~Sample)
+```
+
+
+
+We summarise cluster counts based on the number of member sequences.
+
+```{R clustercountsTable}
+clusterbig$five <- clusterbig$Count >=5
+clusterbig$hundred <- clusterbig$Count >= 100
+clusterbig$thousand <- clusterbig$Count >= 1000
+clustercounts <- clusterbig %>%
+  group_by(Sample) %>%
+  summarize(Clusters = n(), Clusters_of_5 = sum(five), Clusters_of_100 = sum(hundred), Clusters_of_1000 = sum(thousand))
+kable(clustercounts) %>%
+  kable_styling()
+```
+
+
+
+## CDR3 analysis 
+
+
+
+
+We use a Python script to collect the CDR3 sequences only from the full amino acid sequence, using the context of the CDR3 which begins with amino acids which commence after a YYC and terminates with the amino acids which precede a WGQ. We also compute the length distribution of these CDR3 sequences.
+
+Note that this approach is not robust to amino acid sequences which do not follow this pattern, or contain the motifs in other positions.
+
+
+
+```{R cdrhistogram}
+cdrhists <- data.frame()
+for (file in histofiles) {
+  samplename <- gsub("_cdr3.hist", "", file)
+  histdata <- read.csv(file, header=TRUE)
+  histdata$Sample <- rep(samplename, times=nrow(histdata))
+  cdrhists <- rbind(cdrhists, histdata)
+}
+```
+
+
+```{r CDR3countsTable}
+cdrcounts <- cdrhists %>%
+  group_by(Sample) %>%
+  summarize(Unique_CDR3s = sum(Count0))
+kable(cdrcounts) %>%
+  kable_styling()
+```
+
+
+
+```{r CDR3sizeplot}
+ggplot(data=cdrhists) +
+  geom_histogram(aes(x=Size, y=Count0), stat="identity") +
+  facet_wrap(~Sample) +
+  ggtitle("Size Distribution of Unique CDR3s")
+```
+
+
+## Evolution of CDR3 
+
+
+
+
+```{r fastaRep}
+fastaSeq <- data.frame()
+for (fasta in tablefiles){
+  sample <- gsub("_cdr3.tsv", "", fasta)
+  seqs <- read_tsv(fasta)
+  fastaSeq <- rbind(
+    fastaSeq,
+    cbind(seqs,
+          sample = sample)
+  )
+  rm(seqs)
+}
+```
+
+
+```{r mergeData}
+boostEvol <- clusterbig %>%
+  left_join(fastaSeq,
+            by = c(
+              "Representative" = "ID",
+              "Sample" = "sample"
+            ))
+```
+
+temporarily taken from merged dataset, otherwise would be loaded from file.
+
+```{r sampleMetaData}
+boostEvol <- boostEvol %>%
+  left_join(sampleMetaData,
+      by = c("Sample" = "ID")
+    )
+write_tsv(boostEvol, "cdr3_boost_overview_table.tsv")
+```
+
+
+```{R saveImage}
+save.image("nanobodies_report.RData")
+```
+
+
+
+
+# Additional QC
+
+
+```{r viewlengthdist, eval=FALSE}
+for (samplename in c("317-D1-Bst3_S1","317-D1-Bst4_S2","317-L1-Bst2_S3","317-L1-Bst3_S4","317-L1-Bst4_S5")) {
+  lengthfreqs <- read.csv(file=paste0(samplename, "_L001.hist"), sep="\t", header=FALSE)
+  colnames(lengthfreqs) <- c("sequence_length", "count")
+  print(ggplot(data=lengthfreqs) +
+    geom_histogram(aes(x=sequence_length, y=count), stat="identity") +
+    ggtitle(paste0("Distribution of merged sequence lengths for sample ",samplename)))
+}
+```
+
+
+
+# Methods
+
