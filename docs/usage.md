@@ -9,12 +9,15 @@
   * [Reproducibility](#reproducibility)
 * [Main arguments](#main-arguments)
   * [`-profile`](#-profile)
-  * [`--reads`](#--reads)
+  * [`--input`](#--input)
+  * [`--adapterfile`](#--adapterfile)
   * [`--single_end`](#--single_end)
-* [Reference genomes](#reference-genomes)
-  * [`--genome` (using iGenomes)](#--genome-using-igenomes)
-  * [`--fasta`](#--fasta)
-  * [`--igenomes_ignore`](#--igenomes_ignore)
+  * [`--trim_quality`](#--trim_quality)
+  * [`--trim_minlength`](#--trim_minlength)
+  * [`--trim_adaptertimes`](#--trim_adaptertimes)
+  * [`--trim_maxerror`](#--trim_maxerror)
+  * [`--trim_maxn`](#--trim_maxn)
+  * [`--flash_max_overlap`](#--flash_max_overlap)
 * [Job resources](#job-resources)
   * [Automatic resubmission](#automatic-resubmission)
   * [Custom resource requests](#custom-resource-requests)
@@ -37,7 +40,6 @@
   * [`--max_cpus`](#--max_cpus)
   * [`--plaintext_email`](#--plaintext_email)
   * [`--monochrome_logs`](#--monochrome_logs)
-  * [`--multiqc_config`](#--multiqc_config)
 
 ## Introduction
 
@@ -56,10 +58,27 @@ NXF_OPTS='-Xms1g -Xmx4g'
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run nibscbioinformatics/nanoprofiler --reads '*_R{1,2}.fastq.gz' -profile docker
+nextflow run nibscbioinformatics/nanoprofiler \
+-profile docker \
+[-c additional_settings.config] \
+--input samples.tsv \
+--adapterfile adapters.fa \
+--single_end false
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
+
+If you are running the pipeline on NIBSC infrastructure, you can launch it with the following command:
+
+```bash
+nextflow run nibscbioinformatics/nanoprofiler \
+[-r dev] \
+-profile nibsc \
+[-c additional_settings.config] \
+--input samples.tsv \
+--adapterfile adapters.fa \
+--single_end false
+```
 
 Note that the pipeline will create the following files in your working directory:
 
@@ -69,6 +88,24 @@ results         # Finished results (configurable, see below)
 .nextflow_log   # Log file from Nextflow
 # Other nextflow hidden files, eg. history of pipeline runs and old logs.
 ```
+
+Within the results folder, you will find the following directories:
+
+```bash
+cdhit           # results of cluster analysis as produced by CD-HIT
+cutadapt        # trimmed fastq files
+fastqc          # QC results using fastqc
+flash           # merged read sequences
+getcdr3         # CDR3 only sequences
+mafft           # multiple alignment of cluster representative sequences
+multiqc         # multiqc report
+nanotranslate   # translation of sequences into aminoacid sequence
+pipeline_info   # pipeline execution information
+readcdhit       # useful information extracted from CD-HIT clustering results
+rename          # intermediate files
+report          # analysis report and results table
+```
+
 
 ### Updating the pipeline
 
@@ -119,21 +156,39 @@ If `-profile` is not specified, the pipeline will run locally and expect all sof
 
 <!-- TODO nf-core: Document required command line parameters -->
 
-### `--reads`
+### `--input`
 
-Use this to specify the location of your input FastQ files. For example:
+### `--adapterfile`
 
-```bash
---reads 'path/to/data/sample_*_{1,2}.fastq'
-```
+### trim_quality
 
-Please note the following requirements:
+Cutadapt setting, indicating the trim quality threshold. (*default value = 30*)
 
-1. The path must be enclosed in quotes
-2. The path must have at least one `*` wildcard character
-3. When using the pipeline with paired end data, the path must use `{1,2}` notation to specify read pairs.
+### trim_minlength 
 
-If left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`
+Cutadapt setting, indicating the minimum length of the read after trimming. (*default valuue = 50*)
+
+
+### trim_adaptertimes 
+
+Cutadapt setting, indicating how many time an adapter can be trimmed from the sequence. (*default value = 2*)
+
+
+### trim_maxerror 
+
+Cutadapt setting, indicating the maximum error rate for the adapter match. For more information see [cutadapt manual](https://cutadapt.readthedocs.io/en/stable/guide.html#adapter-trimming-parameters).(*default value = 0.1*)
+
+
+
+### trim_maxn 
+
+Cutadapt setting, indicating filtering value for the reads: discards those with higher fraction of Ns in the sequence. For more information, see [cutadapt manual](https://cutadapt.readthedocs.io/en/stable/guide.html#filtering-reads). (*default value = 0.4*)
+
+
+
+### flash_max_overlap 
+
+FLASH setting, indicating the maximum overlap in bases allowed between the forward and reverse reads to be merged. (*default value = 300*)
 
 ### `--single_end`
 
@@ -145,57 +200,6 @@ By default, the pipeline expects paired-end data. If you have single-end data, y
 
 It is not possible to run a mixture of single-end and paired-end files in one run.
 
-## Reference genomes
-
-The pipeline config files come bundled with paths to the illumina iGenomes reference index files. If running with docker or AWS, the configuration is set up to use the [AWS-iGenomes](https://ewels.github.io/AWS-iGenomes/) resource.
-
-### `--genome` (using iGenomes)
-
-There are 31 different species supported in the iGenomes references. To run the pipeline, you must specify which to use with the `--genome` flag.
-
-You can find the keys to specify the genomes in the [iGenomes config file](../conf/igenomes.config). Common genomes that are supported are:
-
-* Human
-  * `--genome GRCh37`
-* Mouse
-  * `--genome GRCm38`
-* _Drosophila_
-  * `--genome BDGP6`
-* _S. cerevisiae_
-  * `--genome 'R64-1-1'`
-
-> There are numerous others - check the config file for more.
-
-Note that you can use the same configuration setup to save sets of reference files for your own use, even if they are not part of the iGenomes resource. See the [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) for instructions on where to save such a file.
-
-The syntax for this reference configuration is as follows:
-
-<!-- TODO nf-core: Update reference genome example according to what is needed -->
-
-```nextflow
-params {
-  genomes {
-    'GRCh37' {
-      fasta   = '<path to the genome fasta file>' // Used if no star index given
-    }
-    // Any number of additional genomes, key is used with --genome
-  }
-}
-```
-
-<!-- TODO nf-core: Describe reference path flags -->
-
-### `--fasta`
-
-If you prefer, you can specify the full path to your reference genome when you run the pipeline:
-
-```bash
---fasta '[path to Fasta reference]'
-```
-
-### `--igenomes_ignore`
-
-Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`.
 
 ## Job resources
 
