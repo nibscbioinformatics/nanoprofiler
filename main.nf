@@ -323,7 +323,7 @@ workflow {
 
   MULTIQC(
       ch_multiqc_config,
-      FASTQC.out.htmlonly.collect(),
+      FASTQC.out.ziponly.collect(),
       CUTADAPT.out.logsonly.collect(),
       nulloptions
   )
