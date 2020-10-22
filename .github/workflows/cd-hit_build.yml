@@ -5,14 +5,11 @@ on:
     # Publish `$default-branch` as Docker `latest` image.
     branches:
       - dev
-      - master
     paths: 
       - software/nibscbioinformatics/cd-hit/Dockerfile
       - software/nibscbioinformatics/cd-hit/environment.yml
       - .github/workflows/cd-hit_build.yml
 
-  # Run tests for any PRs.
-  pull_request:
 
 env:
   # TODO: Change variable to your image's name.

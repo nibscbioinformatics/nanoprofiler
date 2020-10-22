@@ -18,6 +18,7 @@
   * [`--trim_maxerror`](#--trim_maxerror)
   * [`--trim_maxn`](#--trim_maxn)
   * [`--flash_max_overlap`](#--flash_max_overlap)
+  * [`--cdhit_seq_identity`](#--cdhit_seq_identity)
 * [Job resources](#job-resources)
   * [Automatic resubmission](#automatic-resubmission)
   * [Custom resource requests](#custom-resource-requests)
@@ -51,7 +52,6 @@ It is recommended to limit the Nextflow Java virtual machines memory. We recomme
 NXF_OPTS='-Xms1g -Xmx4g'
 ```
 
-<!-- TODO nf-core: Document required command line parameters to run the pipeline-->
 
 ## Running the pipeline
 
@@ -154,41 +154,54 @@ If `-profile` is not specified, the pipeline will run locally and expect all sof
   * A profile with a complete configuration for automated testing
   * Includes links to test data so needs no other parameters
 
-<!-- TODO nf-core: Document required command line parameters -->
+
 
 ### `--input`
 
+Tab-separated file, containing sample metadata and reads information. The file should contain a header line with the following column names:
+
+- *sampleID*: identifier for each sample
+- *read1*: full path to read1 file location (R1 or forward)
+- *read2*: full path to read2 file location (R2 or reverse)
+- *immunisation*: identifier for the immunisation used to generate the nanobodies
+- *boost*: number indicating the round of boosts to immunise the subject
+
 ### `--adapterfile`
 
-### trim_quality
+Path to the file containing adapters to be trimmed from the raw reads, using cutadapt.
+
+### `--trim_quality`
 
 Cutadapt setting, indicating the trim quality threshold. (*default value = 30*)
 
-### trim_minlength 
+### `--trim_minlength` 
 
 Cutadapt setting, indicating the minimum length of the read after trimming. (*default valuue = 50*)
 
 
-### trim_adaptertimes 
+### `--trim_adaptertimes` 
 
 Cutadapt setting, indicating how many time an adapter can be trimmed from the sequence. (*default value = 2*)
 
 
-### trim_maxerror 
+### `--trim_maxerror` 
 
 Cutadapt setting, indicating the maximum error rate for the adapter match. For more information see [cutadapt manual](https://cutadapt.readthedocs.io/en/stable/guide.html#adapter-trimming-parameters).(*default value = 0.1*)
 
 
 
-### trim_maxn 
+### `--trim_maxn`
 
 Cutadapt setting, indicating filtering value for the reads: discards those with higher fraction of Ns in the sequence. For more information, see [cutadapt manual](https://cutadapt.readthedocs.io/en/stable/guide.html#filtering-reads). (*default value = 0.4*)
 
 
-
-### flash_max_overlap 
+### `--flash_max_overlap` 
 
 FLASH setting, indicating the maximum overlap in bases allowed between the forward and reverse reads to be merged. (*default value = 300*)
+
+### `--cdhit_seq_identity`
+
+CH-HIT setting, indicating the minimum sequence identity to identify cluster membership. (*default value = 0.9*)
 
 ### `--single_end`
 
@@ -235,7 +248,6 @@ Please make sure to also set the `-w/--work-dir` and `--outdir` parameters to a 
 
 ## Other command line parameters
 
-<!-- TODO nf-core: Describe any other command line flags here -->
 
 ### `--outdir`
 
