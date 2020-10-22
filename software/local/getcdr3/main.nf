@@ -21,7 +21,7 @@ process GETCDR3 {
 
     container "ghcr.io/nibscbioinformatics/biopython:v1.78"
 
-    conda (params.conda ? "${moduleDir}/environment.yml" : null)
+    conda (params.conda ? "conda-forge::biopython=1.78" : null)
 
 
   input:
