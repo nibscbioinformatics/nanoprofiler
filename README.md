@@ -55,13 +55,13 @@ The nibscbioinformatics/nanoprofiler pipeline comes with documentation about the
 4. [Output and how to interpret the results](docs/output.md)
 5. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
 
-The pipeline is inspired to the work published by Deschaght et al (2017), and performs a repertoire analysis of nanobodies generated in immunised alpacas, and further selected by subsequent boosts.
+The pipeline is inspired to the work published by Deschaght et al. in 2017 (doi: 10.3389/fimmu.2017.00420), and performs a repertoire diversity analysis of nanobodies generated in immunised alpacas, and further selected by subsequent boosts.
 We cluster the nanobodies sequences using CD-HIT, and we extract and analyse their CDR3.
 Finally, we produce a minimal report and a table of cluster representative sequences and CDR3 by sample, immunisation and boost for further follow-up.
 
 ## Credits
 
-nibscbioinformatics/nanoprofiler was originally written by Francesco Lescai, with in-house scripts contributed by Thomas Bleazard.
+nibscbioinformatics/nanoprofiler was originally written by Francesco Lescai, with in-house scripts contributed by Thomas Bleazard. Scientific review and contribution, thanks to Elliot MacLeod.
 
 ## Contributions and Support
 
@@ -82,3 +82,7 @@ You can cite the `nf-core` publication as follows:
 >
 > _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).  
 > ReadCube: [Full Access Link](https://rdcu.be/b1GjZ)
+
+## Disclaimer
+
+This first release of the pipeline comes with minimal documentation and reporting. We are working hard to improve this, for a next release.
