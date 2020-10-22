@@ -73,7 +73,7 @@ def readInputFile(tsvFile, single_end) {
             def reads = []
             def sampleinfo = []
             meta.sampleID = row.sampleID
-            if (single_end) {
+            if (params.single_end) {
               reads = checkFile(row.read1, "clusters")
             } else {
               reads = [ checkFile(row.read1, "clusters"), checkFile(row.read2, "clusters") ]
