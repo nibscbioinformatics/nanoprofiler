@@ -25,6 +25,7 @@ params.trim_adaptertimes = 2
 params.trim_maxerror = 0.1
 params.trim_maxn = 0.4
 params.flash_max_overlap = 300
+params.cdhit_seq_identity = 0.9
 
 
 /*============================================
@@ -299,7 +300,10 @@ workflow {
 
   NANOTRANSLATE(RENAME.out.renamed, nulloptions)
 
-  CDHIT(NANOTRANSLATE.out.fasta, nulloptions)
+  def Map cdhitoptions = [:]
+  cdhitoptions.args = "-c ${params.cdhit_seq_identity}"
+
+  CDHIT(NANOTRANSLATE.out.fasta, cdhitoptions)
 
 
   // this process needs to access CD-HIT summary file

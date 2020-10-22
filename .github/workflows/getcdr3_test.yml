@@ -4,10 +4,6 @@ on:
     paths:
       - software/local/getcdr3/**
       - .github/workflows/getcdr3_test.yml
-  pull_request:
-    paths:
-      - software/local/getcdr3/**
-      - .github/workflows/getcdr3_test.yml
 
 jobs:
   ci_test:

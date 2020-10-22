@@ -38,14 +38,19 @@ sampleMetaData <- read_tsv(params$sampleData)
 
 # Introduction
 
+In this analysis, we aim to generate the total number of different nanobody CDR3s that exist in a library, and the relative abundance of each. 
+We then perform further analysis to show which B cell lineages were affinity matured. 
+For our initial analysis we follow some of the steps used by Deschaght et al (2017).
 
 
 # Results 
 
+In the first section, we briefly summarise the characteristics of the clusters. In the second one, we look more in detail at the CDR3 in the libraries.
+
 ## Clusters
 
 
-We review the distribution of members of clusters and their sequence identity to the representative.
+In the following, we review the distribution of members of clusters and their sequence identity to the representative.
 
 
 
@@ -104,7 +109,7 @@ kable(clustercounts) %>%
 
 
 
-We use a Python script to collect the CDR3 sequences only from the full amino acid sequence, using the context of the CDR3 which begins with amino acids which commence after a YYC and terminates with the amino acids which precede a WGQ. We also compute the length distribution of these CDR3 sequences.
+We have used a Python script to collect the CDR3 sequences only from the full amino acid sequence, using the context of the CDR3 which begins with amino acids which commence after a YYC and terminates with the amino acids which precede a WGQ. We also compute the length distribution of these CDR3 sequences.
 
 Note that this approach is not robust to amino acid sequences which do not follow this pattern, or contain the motifs in other positions.
 
@@ -141,7 +146,8 @@ ggplot(data=cdrhists) +
 
 ## Evolution of CDR3 
 
-
+To be completed.
+Currently, only outputting a table file.
 
 
 ```{r fastaRep}
@@ -188,6 +194,7 @@ save.image("nanobodies_report.RData")
 
 # Additional QC
 
+To be completed.
 
 ```{r viewlengthdist, eval=FALSE}
 for (samplename in c("317-D1-Bst3_S1","317-D1-Bst4_S2","317-L1-Bst2_S3","317-L1-Bst3_S4","317-L1-Bst4_S5")) {
@@ -203,3 +210,20 @@ for (samplename in c("317-D1-Bst3_S1","317-D1-Bst4_S2","317-L1-Bst2_S3","317-L1-
 
 # Methods
 
+The overall approach is inspired by the work *Large diversity of Functional Nanobodies from a Camelid Immune Library Revealed by an Alternative Analysis of Next-Generation sequencing data* by Pieter Deschaght and colleagues (doi: 10.3389/fimmu.2017.00420, published April 2017).
+
+## Merging forward and reverse reads
+Forward and reverse reads have been merged using the software FLASH, with default settings except maximum overlap between the reads, which was set at 300bp.
+More information about the software is available at their [website](https://ccb.jhu.edu/software/FLASH/)
+
+## Translating cDNA to protein sequence 
+Translation has been done with an in-house python script developed by T. Bleazard, and using Biopython. In order to identify the correct frame, we have set the starting sequence as *ATGGCACAG* and the end sequence  as *ACCGTCTCCTCA*. Anything in between is translated into a protein sequence.
+If start or end cannot be identified, or if the sequence in between is not a multiple of codon triplets, the sequence will fail translation.
+
+## Clustering the aminoacid sequences 
+Clustering of the translated sequences is performed using the software CD-HIT. For more information, please visit their [website](https://github.com/weizhongli/cdhit/wiki).
+In our implementation we have selected an identity cutoff of 0.9, as per results of Deschaght et al.
+
+## Extracting the CDR3 sequences
+Using Biopython, and an in-house script originally written by T. Bleazard, we extract the CDR3 sequence from the translated protein sequence as the amminoacid sequence that begins with amino acids after a YYC and terminates with the amino acids which precede a WGQ.
+Note that this approach is not robust to amino acid sequences which do not follow this pattern, or contain the motifs in other positions.
