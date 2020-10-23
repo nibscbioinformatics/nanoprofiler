@@ -8,6 +8,7 @@
 # UPDATE - the script also outputs a tsv file with all CDR3 even if not unique: this is to be used later
 
 import sys
+import re
 import Bio
 from Bio.Seq import Seq
 ## from Bio.Alphabet import generic_dna ##not used anymore in biopython
@@ -27,6 +28,7 @@ bigset = set()
 
 preseq = "YYC"
 postseq = "WGQ"
+# my_rna.find(re.findall(r"A.{2}G", str(my_rna))[0])
 
 filein = open(args.input)
 fileout = open(args.cdr, "w")
@@ -44,8 +46,10 @@ for line in filein:
     identifier = header.replace("@", "")
   else:
     sequence = Seq(line.rstrip())
-    startaa = sequence.find(preseq) + 3
-    endaa = sequence.find(postseq)
+    ### startaa = sequence.find(preseq) + 3
+    startaa = sequence.find(re.findall(r"T.{2}Y.{1}C", str(sequence))[0]) + 3
+    ### endaa = sequence.find(postseq)
+    endaa = sequence.find(re.findall(r".{6}TVSS", str(sequence))[0])
     if startaa == -1 or endaa == -1:
       tsvfile.write(identifier + "\t" + "NA" + "\t" + line.rstrip() + "\tno-cdr3\n")
       continue
