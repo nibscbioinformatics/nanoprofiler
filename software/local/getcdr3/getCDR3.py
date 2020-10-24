@@ -49,8 +49,8 @@ for line in filein:
   linecount += 1
   if linecount % 2 == 1:
     header = line.rstrip()
-    fastaheader = header.replace("@",">") + "_S" + sample + "_I" + immuno + "_B" + boost
-    identifier = header.replace("@", "") + "_S" + sample + "_I" + immuno + "_B" + boost
+    fastaheader = header.replace("@",">") + "_S" + args.sample + "_I" + args.immuno + "_B" + args.boost
+    identifier = header.replace("@", "") + "_S" + args.sample + "_I" + args.immuno + "_B" + args.boost
   else:
     sequence = Seq(line.rstrip())
     ## modified pattern search using a motif, i.e. introduced a regex
