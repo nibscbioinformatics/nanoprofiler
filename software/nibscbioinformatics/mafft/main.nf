@@ -29,8 +29,8 @@ process MAFFT {
   val options
 
   output:
-  path("${sampleID}_${immunisation}_mafft.fasta"), emit: fasta
-  path("*.tree"), emit: tree
+  path "${sampleID}_${immunisation}_mafft.fasta", emit: fasta
+  path "*.tree", emit: tree
   path "*.version.txt", emit: version
 
   script:
