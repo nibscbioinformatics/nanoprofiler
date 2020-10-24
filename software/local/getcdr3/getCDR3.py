@@ -50,7 +50,7 @@ for line in filein:
   if linecount % 2 == 1:
     header = line.rstrip()
     fastaheader = header.replace("@",">") + "_S" + args.sample + "_I" + args.immuno + "_B" + args.boost
-    identifier = header.replace("@", "") + "_S" + args.sample + "_I" + args.immuno + "_B" + args.boost
+    identifier = header.replace("@", "")
   else:
     sequence = Seq(line.rstrip())
     ## modified pattern search using a motif, i.e. introduced a regex

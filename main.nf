@@ -321,6 +321,7 @@ workflow {
   mafftoptions.args2 = ''
 
   sampleFasta = GETCDR3.out.fasta.groupTuple(by:[0, 1])
+  sampleFasta = sampleFasta.dump(tag: 'MAFFT input')
 
   MAFFT(sampleFasta, mafftoptions)
 
