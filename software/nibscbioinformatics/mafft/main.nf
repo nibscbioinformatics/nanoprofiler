@@ -16,7 +16,7 @@ process MAFFT {
     publishDir "${params.outdir}",
         mode: params.publish_dir_mode,
         saveAs: { filename ->
-          saveFiles(filename:filename, options:options, publish_dir:getSoftwareName(task.process), publish_id:meta.sampleID)
+          saveFiles(filename:filename, options:options, publish_dir:getSoftwareName(task.process), publish_id:sampleID)
         }
 
     container "quay.io/biocontainers/mafft:7.471--h516909a_0"
