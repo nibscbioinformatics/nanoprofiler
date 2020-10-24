@@ -33,7 +33,7 @@ process GETCDR3 {
   val options
 
   output:
-  tuple val(meta), path("*.fasta"), emit: fasta
+  tuple val("${meta.sampleID}"), val("${meta.immunisation}"), val("${meta.boost}"), path("*.fasta"), emit: fasta
   tuple val(meta), path("*.hist"), emit: hist
   tuple val(meta), path("*.tsv"), emit: tsv
   path '*.hist', emit: histonly
@@ -46,6 +46,9 @@ process GETCDR3 {
   -i ${translated} \
   -c ${meta.sampleID}_cdr3.fasta \
   -o ${meta.sampleID}_cdr3.hist \
-  -t ${meta.sampleID}_cdr3.tsv
+  -t ${meta.sampleID}_cdr3.tsv \
+  -s ${meta.sampleID} \
+  -m ${meta.immunisation} \
+  -b ${meta.boost}
   """
 }

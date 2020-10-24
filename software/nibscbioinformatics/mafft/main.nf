@@ -2,6 +2,9 @@ def MODULE = "mafft"
 params.publish_dir = MODULE
 params.publish_results = "default"
 
+// ### --> NB: this process has been adapted for local execution into the nanoprofiler pipeline
+// the inputs have been customised for this particular use
+
 // Import generic module functions
 include { initOptions; saveFiles; getSoftwareName } from './functions'
 
@@ -22,25 +25,24 @@ process MAFFT {
 
 
   input:
-  // --> meta is a Groovy MAP containing any number of information (metadata) per sample
-  // or analysis unit, corresponding to each of "reads"
-  // it is accessible via meta.name where ".name" is the name of the metadata
-  // these MUST be described in the meta.yml when the metatada are expected by the process
-  tuple val(meta), path(fasta)
-
+  tuple val(sampleID), val(immunisation), val(boost), path(fasta)
   val options
 
   output:
-  tuple val(meta), path("${meta.sampleID}_mafft.fasta"), emit: fasta
-  tuple val(meta), path("*.tree"), emit: tree
+  path("${sampleID}_${immunisation}_mafft.fasta"), emit: fasta
+  path("*.tree"), emit: tree
   path "*.version.txt", emit: version
 
   script:
+  allFasta = fasta.collect{"${it}"}.join(' ')
+
   """
+  cat ${allFasta} >${sampleID}_${immunisation}_collated.fasta
+
   mafft \
   ${options.args} \
-  ${fasta} \
-  > ${meta.sampleID}_mafft.fasta
+  ${sampleID}_${immunisation}_collated.fasta \
+  > ${sampleID}_${immunisation}_mafft.fasta
 
   mafft --version >mafft.version.txt
   """

@@ -22,6 +22,13 @@ parser.add_argument("-t", "--tsv", help="output all CDR3 TSV file",
                     action="store", dest = "tsv")                    
 parser.add_argument("-o", "--hist", help="output histogram file",
                     action="store", dest = "hist")
+## additional options to enrich the fasta name
+parser.add_argument("-s", "--sample", help="sample identifier",
+                    action="store", dest = "sample")
+parser.add_argument("-m", "--immuno", help="immunisation of the sample",
+                    action="store", dest = "immuno")
+parser.add_argument("-b", "--boost", help="boost round of the immunisation",
+                    action="store", dest = "boost")
 args = parser.parse_args()
 
 bigset = set()
@@ -42,8 +49,8 @@ for line in filein:
   linecount += 1
   if linecount % 2 == 1:
     header = line.rstrip()
-    fastaheader = header.replace("@",">")
-    identifier = header.replace("@", "")
+    fastaheader = header.replace("@",">") + "_S" + sample + "_I" + immuno + "_B" + boost
+    identifier = header.replace("@", "") + "_S" + sample + "_I" + immuno + "_B" + boost
   else:
     sequence = Seq(line.rstrip())
     ## modified pattern search using a motif, i.e. introduced a regex
