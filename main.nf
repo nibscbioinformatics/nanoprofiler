@@ -320,7 +320,9 @@ workflow {
   mafftoptions.args = "--retree 0 --treeout --localpair --reorder"
   mafftoptions.args2 = ''
 
-  MAFFT(GETCDR3.out.fasta, mafftoptions)
+  sampleFasta = GETCDR3.out.fasta.groupTuple(by:[0, 1])
+
+  MAFFT(sampleFasta, mafftoptions)
 
   //MAFFT.out.tree
   //MAFFT.out.fasta
