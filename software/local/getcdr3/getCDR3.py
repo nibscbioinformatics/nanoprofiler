@@ -46,10 +46,20 @@ for line in filein:
     identifier = header.replace("@", "")
   else:
     sequence = Seq(line.rstrip())
+    ## modified pattern search using a motif, i.e. introduced a regex
+    ## meaning the regex itself might not yield any results, so additional
+    ## conditionals need to be introduced before using .find()
+    ## NB: always finds using first regex match
     ### startaa = sequence.find(preseq) + 3
-    startaa = sequence.find(re.findall(r"T.{2}Y.{1}C", str(sequence))[0]) + 3
+    if len(re.findall(r"T.{2}Y.{1}C", str(sequence))) > 0:
+      startaa = sequence.find(re.findall(r"T.{2}Y.{1}C", str(sequence))[0]) + 3
+    else:
+      startaa = -1
     ### endaa = sequence.find(postseq)
-    endaa = sequence.find(re.findall(r".{6}TVSS", str(sequence))[0])
+    if len(re.findall(r".{6}TVSS", str(sequence))) > 0:
+      endaa = sequence.find(re.findall(r".{6}TVSS", str(sequence))[0])
+    else:
+      endaa = -1
     if startaa == -1 or endaa == -1:
       tsvfile.write(identifier + "\t" + "NA" + "\t" + line.rstrip() + "\tno-cdr3\n")
       continue
