@@ -16,7 +16,7 @@ process MAFFT {
     publishDir "${params.outdir}",
         mode: params.publish_dir_mode,
         saveAs: { filename ->
-          saveFiles(filename:filename, options:options, publish_dir:getSoftwareName(task.process), publish_id:sampleID)
+          saveFiles(filename:filename, options:options, publish_dir:getSoftwareName(task.process), publish_id:individualID)
         }
 
     container "quay.io/biocontainers/mafft:7.471--h516909a_0"
@@ -25,11 +25,11 @@ process MAFFT {
 
 
   input:
-  tuple val(sampleID), val(immunisation), val(boost), path(fasta)
+  tuple val(sampleID), val(individualID), val(immunisation), val(boost), path(fasta)
   val options
 
   output:
-  path "${sampleID}_${immunisation}_mafft.fasta", emit: fasta
+  path "${individualID}_${immunisation}_mafft.fasta", emit: fasta
   path "*.tree", emit: tree
   path "*.version.txt", emit: version
 
@@ -37,12 +37,12 @@ process MAFFT {
   allFasta = fasta.collect{"${it}"}.join(' ')
 
   """
-  cat ${allFasta} >${sampleID}_${immunisation}_collated.fasta
+  cat ${allFasta} >${individualID}_${immunisation}_collated.fasta
 
   mafft \
   ${options.args} \
-  ${sampleID}_${immunisation}_collated.fasta \
-  > ${sampleID}_${immunisation}_mafft.fasta
+  ${individualID}_${immunisation}_collated.fasta \
+  > ${individualID}_${immunisation}_mafft.fasta
 
   mafft --version >mafft.version.txt
   """

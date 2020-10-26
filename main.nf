@@ -320,7 +320,7 @@ workflow {
   mafftoptions.args = "--retree 0 --treeout --localpair --reorder"
   mafftoptions.args2 = ''
 
-  sampleFasta = GETCDR3.out.fasta.groupTuple(by:[0, 1])
+  sampleFasta = GETCDR3.out.fasta.groupTuple(by:[1, 2])
   sampleFasta = sampleFasta.dump(tag: 'MAFFT input')
 
   MAFFT(sampleFasta, mafftoptions)
@@ -548,6 +548,9 @@ def readInputFile(tsvFile, single_end) {
             }
             if (row.boost) {
                 meta.boost = row.boost
+            }
+            if (row.individualID) {
+                meta.individualID = row.individualID
             }
             if (single_end) {
               reads = checkFile(row.read1, "fastq.gz")
