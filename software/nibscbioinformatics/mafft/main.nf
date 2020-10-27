@@ -11,7 +11,8 @@ include { initOptions; saveFiles; getSoftwareName } from './functions'
 process MAFFT {
     // each module must define a process label to declare a category of
     // resource requirements
-    label 'process_low'
+    label 'process_high'
+    label 'process_long'
 
     publishDir "${params.outdir}",
         mode: params.publish_dir_mode,
