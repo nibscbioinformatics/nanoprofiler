@@ -41,6 +41,7 @@ process MAFFT {
   cat ${allFasta} >${individualID}_${immunisation}_collated.fasta
 
   mafft \
+  --thread ${task.cpus} \
   ${options.args} \
   ${individualID}_${immunisation}_collated.fasta \
   > ${individualID}_${immunisation}_mafft.fasta
