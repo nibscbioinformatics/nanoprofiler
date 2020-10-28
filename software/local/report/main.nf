@@ -50,11 +50,11 @@ process REPORT {
     
     // write this on a file R can read
     def sampleData = new File("${workDir}/sampledata.tsv")
-    sampleData.append("ID\timmunisation\tboost\n")
+    sampleData.append("ID\tindividual\timmunisation\tboost\n")
 
     // now need to map them in order to gather the files
     metadata.each() { map -> 
-        sampleData.append("${map.sampleID}\t${map.immunisation}\t${map.boost}\n")
+        sampleData.append("${map.sampleID}\t${map.individualID}\t${map.immunisation}\t${map.boost}\n")
     }
     clusterList = clustersummaries.join(",")
     histoList = cdr3histograms.join(",")
@@ -70,7 +70,9 @@ process REPORT {
         clusterList = \\\"$clusterList\\\",
         histoList = \\\"$histoList\\\",
         tableList = \\\"$tableList\\\",
-        sampleData = \\\"sampledata.tsv\\\"
+        sampleData = \\\"sampledata.tsv\\\",
+        sizeThreshold = \\\"${params.cluster_size_threshold}\\\",
+        loopFile = \\\"$moduleDir/loop_tree.Rmd\\\"
         ),
         knit_root_dir=workdir,
         intermediates_dir=workdir,

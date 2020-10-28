@@ -43,3 +43,4 @@ Rscript -e "BiocManager::install(c('ggtree', 'Gviz', 'VariantAnnotation', 'Genom
 Rscript -e "install.packages('kableExtra', repos = 'https://cloud.r-project.org')"
 Rscript -e "install.packages('remotes', repos = 'https://cloud.r-project.org')"
 Rscript -e "remotes::install_github('nibscbioinformatics/nibscdoc')"
+Rscript -e "BiocManager::install(c('msa', 'seqinr', 'plotly'))"

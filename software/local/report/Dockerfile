@@ -30,3 +30,4 @@ RUN Rscript -e "install.packages('kableExtra', repos = 'https://cloud.r-project.
 RUN Rscript -e "install.packages('remotes', repos = 'https://cloud.r-project.org')"
 RUN Rscript -e "remotes::install_github('nibscbioinformatics/nibscdoc')"
 RUN Rscript -e "install.packages('xfun', repos = 'https://cloud.r-project.org')"
+RUN Rscript -e "BiocManager::install(c('msa', 'seqinr', 'plotly'))"
