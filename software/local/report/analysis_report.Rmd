@@ -30,6 +30,7 @@ library(Biostrings)
 library(msa)
 library(plotly)
 library(seqinr)
+library(ape)
 opts_chunk$set(message=FALSE, error=FALSE, warning=FALSE, tidy=TRUE, tidy.opts=list(blank=FALSE), cache=TRUE, cache.lazy = FALSE, echo = FALSE,  results = 'asis', fig.pos='H', fig.wide=TRUE)
 ```
 
