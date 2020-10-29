@@ -21,6 +21,9 @@ ENV PATH /usr/local/envs/nibsc_reporting/bin:$PATH
 RUN apt-get install -y libgomp1
 RUN apt-get install -y libomp-dev
 
+# Install compiler for msa
+RUN apt-get install build-essential
+
 # Add separately some R packages
 RUN Rscript -e "install.packages(c('gt', 'pander'), repos = 'https://cloud.r-project.org')"
 RUN Rscript -e "install.packages('BiocManager', repos = 'https://cloud.r-project.org')"
