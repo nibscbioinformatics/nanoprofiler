@@ -231,7 +231,7 @@ for (ind in unique(boostEvol$individual)){
   
   #message("---> tree generation")
   dist <- dist.alignment(alignment)
-  smalltree <- nj(dist)
+  smalltree <- njs(dist) # to allow for missing values in the distance matrix
   
   #message("---> tree metadata")
   treeMetaData <- tmpData[c("tip_label", "sample", "individual", "immunisation", "boost")]
