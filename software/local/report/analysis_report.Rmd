@@ -226,7 +226,7 @@ for (ind in unique(boostEvol$individual)){
   names(individualCDR3) <- tmpData$tip_label
   
   #message("---> multiple alignment")
-  msa <- msa(individualCDR3, method="Muscle", type="protein")
+  msa <- msa(individualCDR3, method="ClustalOmega", type="protein")
   alignment <- msaConvert(msa, type="seqinr::alignment")
   
   #message("---> tree generation")
