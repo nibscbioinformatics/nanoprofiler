@@ -10,7 +10,7 @@ process REPORT {
 
   // each module must define a process label to declare a category of
     // resource requirements
-    label 'process_low'
+    label 'process_high'
     label 'reporting'
 
     publishDir "${params.outdir}",
