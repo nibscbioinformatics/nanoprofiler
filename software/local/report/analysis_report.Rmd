@@ -306,5 +306,7 @@ Clustering of the translated sequences is performed using the software CD-HIT. F
 In our implementation we have selected an identity cutoff of 0.9, as per results of Deschaght et al.
 
 ## Extracting the CDR3 sequences
-Using Biopython, and an in-house script originally written by T. Bleazard, we extract the CDR3 sequence from the translated protein sequence as the amminoacid sequence that begins with amino acids after a YYC and terminates with the amino acids which precede a WGQ.
-Note that this approach is not robust to amino acid sequences which do not follow this pattern, or contain the motifs in other positions.
+Using Biopython, and an in-house script originally written by T. Bleazard, we extract the CDR3 sequence from the translated protein sequence.
+The identification of CDR3 is crucial in this process: at the moment we extract a variable sequence between 3 amminoacids after the motif **T.{2}Y.{1}C** and the motif **.{6}TVSS**. We have chosen these motives based on multiple sequence alignments performed by Mitchel et al. in 2018 ( doi: 10.1002/prot.25497). 
+We will consider more complex extraction algorithms in a future release.
+Note that - although the motifs we chose are the result of a multiple alignment and peer-reviewed work - this approach might not be robust to amino acid sequences which do not follow this pattern, or contain the motifs in other positions.
