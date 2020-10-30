@@ -42,7 +42,7 @@ tablefiles <- unlist(strsplit(params$tableList, ","))
 sampleMetaData <- read_tsv(params$sampleData)
 sizeThreshold <- unlist(params$sizeThreshold)
 loopFile <- unlist(params$loopFile)
-dotree <- unlist(params$calcTree)
+dotree <- ifelse(unlist(params$calcTree)=="true", TRUE, FALSE)
 ```
 
 
