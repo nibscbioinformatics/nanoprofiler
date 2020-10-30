@@ -27,6 +27,7 @@ params.trim_maxn = 0.4
 params.flash_max_overlap = 300
 params.cdhit_seq_identity = 0.9
 params.cluster_size_threshold = 5000
+params.calculate_tree = true
 
 
 /*============================================

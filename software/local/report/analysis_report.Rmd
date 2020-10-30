@@ -18,6 +18,7 @@ params:
   sampleData: NULL
   sizeThreshold: NULL
   loopFile: NULL
+  calcTree: NULL
 ---
 
 ```{R, echo=FALSE, message=FALSE, error=FALSE, warning=FALSE}
@@ -41,6 +42,7 @@ tablefiles <- unlist(strsplit(params$tableList, ","))
 sampleMetaData <- read_tsv(params$sampleData)
 sizeThreshold <- unlist(params$sizeThreshold)
 loopFile <- unlist(params$loopFile)
+dotree <- unlist(params$calcTree)
 ```
 
 
@@ -193,7 +195,7 @@ write_tsv(boostEvol, "cdr3_boost_overview_table.tsv")
 ```
 
 
-```{r MSAandTreeStore}
+```{r MSAandTreeStore, eval=dotree}
 
 individualData <- list()
 treeDataList <- list()
@@ -254,7 +256,11 @@ for (ind in unique(boostEvol$individual)){
 
 ```
 
-```{r run-summary-md, include=FALSE}
+```{r setOut}
+out = NULL
+```
+
+```{r run-summary-md, include=FALSE, eval=dotree}
 out = NULL
 for (ind in unique(boostEvol$individual)) {
   env = new.env()

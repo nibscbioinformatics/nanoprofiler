@@ -72,7 +72,8 @@ process REPORT {
         tableList = \\\"$tableList\\\",
         sampleData = \\\"sampledata.tsv\\\",
         sizeThreshold = \\\"${params.cluster_size_threshold}\\\",
-        loopFile = \\\"$moduleDir/loop_tree.Rmd\\\"
+        loopFile = \\\"$moduleDir/loop_tree.Rmd\\\",
+        calcTree = \\\"${params.calculate_tree}\\\"
         ),
         knit_root_dir=workdir,
         intermediates_dir=workdir,
