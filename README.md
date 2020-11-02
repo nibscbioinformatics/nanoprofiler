@@ -50,14 +50,16 @@ The nibscbioinformatics/nanoprofiler pipeline comes with documentation about the
 2. Pipeline configuration
     * [Local installation](https://nf-co.re/usage/local_installation)
     * [Adding your own system config](https://nf-co.re/usage/adding_own_config)
-    * [Reference genomes](https://nf-co.re/usage/reference_genomes)
 3. [Running the pipeline](docs/usage.md)
 4. [Output and how to interpret the results](docs/output.md)
 5. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
 
 The pipeline is inspired to the work published by Deschaght et al. in 2017 (doi: 10.3389/fimmu.2017.00420), and performs a repertoire diversity analysis of nanobodies generated in immunised alpacas, and further selected by subsequent boosts.
 We cluster the nanobodies sequences using CD-HIT, and we extract and analyse their CDR3.
-Finally, we produce a minimal report and a table of cluster representative sequences and CDR3 by sample, immunisation and boost for further follow-up.
+The identification of CDR3 is crucial in this process: at the moment we extract a variable sequence between 3 amminoacids after the motif **T.{2}Y.{1}C** and the motif **.{6}TVSS**. We have chosen these motives based on multiple sequence alignments performed by Mitchel et al. in 2018 ( doi: 10.1002/prot.25497). We will consider more complex extraction algorithms in a future release.
+
+Finally, we produce a minimal report and a table of cluster representative sequences and CDR3 by sample, immunisation and boost for further follow-up. During the generation of the report, we analyse the data by individual (subjected to different boosts of immunisation), filter their CDR3 by cluster size (indicating an expansion following the boost) and perform a new multiple sequence alignment, followed by neighbour-joining tree and plotting. This approach should provide preliminar information to identify the evolution of the CDR3s following round of boosts, and the affinity maturation of the binding sites.
+
 
 ## Credits
 

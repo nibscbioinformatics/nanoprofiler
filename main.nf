@@ -26,6 +26,8 @@ params.trim_maxerror = 0.1
 params.trim_maxn = 0.4
 params.flash_max_overlap = 300
 params.cdhit_seq_identity = 0.9
+params.cluster_size_threshold = 5000
+params.calculate_tree = true
 
 
 /*============================================
@@ -69,8 +71,29 @@ def helpMessage() {
                                     Available: conda, docker, singularity, test, awsbatch, <institute> and more
 
     Options:
-      --genome [str]                  Name of iGenomes reference
       --single_end [bool]             Specifies that the input is single-end reads
+      --conda                         Boolean. Uses conda instead of other containers for some processes.
+                                      Default: false
+      --trim_quality                  Integer. Cutadapt setting, indicating the trim quality threshold. 
+                                      Default: 30
+      --trim_minlength                Cutadapt setting, indicating the minimum length of the read after trimming.
+                                      Default: 50
+      --trim_adaptertimes             Integer. Cutadapt setting, indicating how many time an adapter can be trimmed from the sequence.
+                                      Default: 2
+      --trim_maxerror                 Number. Cutadapt setting, indicating the maximum error rate for the adapter match.
+                                      Default: 0.1
+      --trim_maxn                     Number. Cutadapt setting, indicating filtering value for the reads: discards those with higher fraction of Ns in the sequence.
+                                      Default: 0.4
+      --flash_max_overlap             Integer. FLASH setting, indicating the maximum overlap in bases allowed between the forward and reverse reads to be merged.
+                                      Default: 300
+      --cdhit_seq_identity            Number. CH-HIT setting, indicating the minimum sequence identity to identify cluster membership.s
+                                      Default: 0.9
+      --cluster_size_threshold        Integer. Threshold to filter cluster representative CDR3 sequences, by membership size they represent, when 
+                                      selecting sequences to build a phylogenetic tree.
+                                      Default: 5000
+      --calculate_tree                Boolean. Indicates if the reporting process should perform multiple sequence alignment of selected CDR3 cluster representative sequences,
+                                      and plot the resulting phylogenetic tree.
+                                      Default: true
 
     Other options:
       --outdir [file]                 The output directory where the results will be saved
@@ -320,7 +343,10 @@ workflow {
   mafftoptions.args = "--retree 0 --treeout --localpair --reorder"
   mafftoptions.args2 = ''
 
-  MAFFT(GETCDR3.out.fasta, mafftoptions)
+  sampleFasta = GETCDR3.out.fasta.groupTuple(by:[1, 2])
+  sampleFasta = sampleFasta.dump(tag: 'MAFFT input')
+
+  MAFFT(sampleFasta, mafftoptions)
 
   //MAFFT.out.tree
   //MAFFT.out.fasta
@@ -545,6 +571,9 @@ def readInputFile(tsvFile, single_end) {
             }
             if (row.boost) {
                 meta.boost = row.boost
+            }
+            if (row.individualID) {
+                meta.individualID = row.individualID
             }
             if (single_end) {
               reads = checkFile(row.read1, "fastq.gz")
