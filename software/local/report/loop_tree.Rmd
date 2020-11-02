@@ -1,0 +1,18 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+```{r}
+title <- ind
+```
+
+
+### Evolution tree across boosts for `r title`
+
+```{r}
+print(treePlotList[[ind]])
+```

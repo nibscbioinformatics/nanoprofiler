@@ -19,6 +19,8 @@
   * [`--trim_maxn`](#--trim_maxn)
   * [`--flash_max_overlap`](#--flash_max_overlap)
   * [`--cdhit_seq_identity`](#--cdhit_seq_identity)
+  * [`--cluster_size_threshold`](#--cluster_size_threshold)
+  * [`--calculate_tree`](#--calculate_tree)
 * [Job resources](#job-resources)
   * [Automatic resubmission](#automatic-resubmission)
   * [Custom resource requests](#custom-resource-requests)
@@ -202,6 +204,14 @@ FLASH setting, indicating the maximum overlap in bases allowed between the forwa
 ### `--cdhit_seq_identity`
 
 CH-HIT setting, indicating the minimum sequence identity to identify cluster membership. (*default value = 0.9*)
+
+### `--cluster_size_threshold`
+
+Integer. Threshold to filter cluster representative CDR3 sequences, by membership size they represent, when selecting sequences to build a phylogenetic tree. (*default value = 5000*)
+
+### `--calculate_tree`
+
+Indicates if the reporting process should perform multiple sequence alignment of selected CDR3 cluster representative sequences, and plot the resulting phylogenetic tree. (*default value = true*)
 
 ### `--single_end`
 

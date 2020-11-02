@@ -16,6 +16,9 @@ params:
   histoList: NULL
   tableList: NULL
   sampleData: NULL
+  sizeThreshold: NULL
+  loopFile: NULL
+  calcTree: NULL
 ---
 
 ```{R, echo=FALSE, message=FALSE, error=FALSE, warning=FALSE}
@@ -25,6 +28,10 @@ library(tidyverse)
 library(kableExtra)
 library(ggtree)
 library(Biostrings)
+library(msa)
+library(plotly)
+library(seqinr)
+library(ape)
 opts_chunk$set(message=FALSE, error=FALSE, warning=FALSE, tidy=TRUE, tidy.opts=list(blank=FALSE), cache=TRUE, cache.lazy = FALSE, echo = FALSE,  results = 'asis', fig.pos='H', fig.wide=TRUE)
 ```
 
@@ -33,6 +40,9 @@ clusterfiles <- unlist(strsplit(params$clusterList, ","))
 histofiles <- unlist(strsplit(params$histoList, ","))
 tablefiles <- unlist(strsplit(params$tableList, ","))
 sampleMetaData <- read_tsv(params$sampleData)
+sizeThreshold <- unlist(params$sizeThreshold)
+loopFile <- unlist(params$loopFile)
+dotree <- ifelse(unlist(params$calcTree)=="true", TRUE, FALSE)
 ```
 
 
@@ -185,6 +195,83 @@ write_tsv(boostEvol, "cdr3_boost_overview_table.tsv")
 ```
 
 
+```{r MSAandTreeStore, eval=dotree}
+
+individualData <- list()
+treeDataList <- list()
+treeMetaDataList <- list()
+treePlotList <- list()
+
+for (ind in unique(boostEvol$individual)){
+  tmpData <- boostEvol %>%
+    filter(individual == ind) %>%
+    filter(!is.na(CDR3)) %>%
+    filter(Count > sizeThreshold) %>%
+    group_by(CDR3) %>%
+    summarise(
+      clusterSize = max(Count),
+      representativeSeq = Representative[which(Count == max(Count))],
+      individual = individual[which(Count == max(Count))],
+      sample = Sample[which(Count == max(Count))],
+      immunisation = immunisation[which(Count == max(Count))],
+      boost = boost[which(Count == max(Count))]
+    ) %>%
+    mutate(
+      tip_label = paste0(
+        representativeSeq,"_S",individual,"_I",immunisation,"_B",boost
+      )
+    )
+  
+  individualData[[ind]] <- tmpData
+  
+  individualCDR3 <- AAStringSet(tmpData$CDR3)
+  names(individualCDR3) <- tmpData$tip_label
+  
+  #message("---> multiple alignment")
+  msa <- msa(individualCDR3, method="ClustalOmega", type="protein")
+  alignment <- msaConvert(msa, type="seqinr::alignment")
+  
+  #message("---> tree generation")
+  dist <- dist.alignment(alignment)
+  smalltree <- njs(dist) # to allow for missing values in the distance matrix
+  
+  #message("---> tree metadata")
+  treeMetaData <- tmpData[c("tip_label", "sample", "individual", "immunisation", "boost")]
+  
+  #message("---> store results")
+  treeDataList[[ind]] <- smalltree
+  treeMetaDataList[[ind]] <- treeMetaData
+  
+  #message("---> combine metadata in plot")
+  treePlotBase <- ggtree(smalltree, layout="rectangular") %<+% treeMetaData
+  
+  #message("---> generate tree plot")
+  annotatedTree <- treePlotBase+
+    geom_tiplab(align=TRUE, linesize=.2, size=2, offset = -0.8)+
+    geom_rootpoint(color="black", size=3) +
+    geom_tippoint(aes(color = boost), size=2, alpha=.5)
+  
+  treePlotList[[ind]] <- annotatedTree
+}
+
+```
+
+```{r setOut}
+out = NULL
+```
+
+```{r run-summary-md, include=FALSE, eval=dotree}
+out = NULL
+for (ind in unique(boostEvol$individual)) {
+  env = new.env()
+  out = c(out, knit_child(loopFile, envir=env))
+}
+
+```
+
+`r paste(out, collapse = '\n')`
+
+
 ```{R saveImage}
 save.image("nanobodies_report.RData")
 ```
@@ -225,5 +312,7 @@ Clustering of the translated sequences is performed using the software CD-HIT. F
 In our implementation we have selected an identity cutoff of 0.9, as per results of Deschaght et al.
 
 ## Extracting the CDR3 sequences
-Using Biopython, and an in-house script originally written by T. Bleazard, we extract the CDR3 sequence from the translated protein sequence as the amminoacid sequence that begins with amino acids after a YYC and terminates with the amino acids which precede a WGQ.
-Note that this approach is not robust to amino acid sequences which do not follow this pattern, or contain the motifs in other positions.
+Using Biopython, and an in-house script originally written by T. Bleazard, we extract the CDR3 sequence from the translated protein sequence.
+The identification of CDR3 is crucial in this process: at the moment we extract a variable sequence between 3 amminoacids after the motif **T.{2}Y.{1}C** and the motif **.{6}TVSS**. We have chosen these motives based on multiple sequence alignments performed by Mitchel et al. in 2018 ( doi: 10.1002/prot.25497). 
+We will consider more complex extraction algorithms in a future release.
+Note that - although the motifs we chose are the result of a multiple alignment and peer-reviewed work - this approach might not be robust to amino acid sequences which do not follow this pattern, or contain the motifs in other positions.
