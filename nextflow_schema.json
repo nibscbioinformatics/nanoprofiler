@@ -249,6 +249,16 @@
             "type": "number",
             "description": "CH-HIT setting, indicating the minimum sequence identity to identify cluster membership.",
             "default": 0.9
+        },
+        "cluster_size_threshold": {
+            "type": "integer",
+            "description": "Threshold to filter cluster representative CDR3 sequences, by membership size of the cluster they represent. This is used when selecting sequences to build a phylogenetic tree",
+            "default": "5000"
+        },
+        "calculate_tree": {
+            "type": "boolean",
+            "description": "Indicates if the reporting process should perform multiple sequence alignment of selected CDR3 and plot the resulting phylogenetic tree",
+            "default": true
         }
     }
 }
