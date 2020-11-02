@@ -1,6 +1,6 @@
 # ![nibscbioinformatics/nanoprofiler](docs/images/nibscbioinformatics-nanoprofiler_logo.png)
 
-**Analysis and reporing repertoire of nanobodies**.
+**Analysis and reporting repertoire of nanobodies**.
 
 [![GitHub Actions CI Status](https://github.com/nibscbioinformatics/nanoprofiler/workflows/nf-core%20CI/badge.svg)](https://github.com/nibscbioinformatics/nanoprofiler/actions)
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A519.10.0-brightgreen.svg)](https://www.nextflow.io/)
