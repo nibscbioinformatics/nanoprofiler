@@ -8,6 +8,8 @@
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
 ![Biopython Container](https://github.com/nibscbioinformatics/nanoprofiler/workflows/Build%20Biopython/badge.svg)
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4195774.svg)](https://doi.org/10.5281/zenodo.4195774)
+
 ## Introduction
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
